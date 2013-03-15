@@ -4,7 +4,7 @@ var util = require('util'),
 
 
 
-var ReaderIso2709 = function(stream) {
+var Iso2709ReadStream = function(stream) {
     
     var self = this,
         prevData,        // Le buffer précédent du stream en cours de lecture
@@ -66,7 +66,7 @@ var ReaderIso2709 = function(stream) {
                     raw = new Buffer(pos-start +1);
                     data.copy(raw, 0, start, pos);
                 }
-                self.emit('next', self.parse(raw));
+                self.emit('data', self.parse(raw));
                 pos++;
                 start = pos;
             }
@@ -84,14 +84,15 @@ var ReaderIso2709 = function(stream) {
     })
 
 };
-util.inherits(ReaderIso2709, events.EventEmitter);
+util.inherits(Iso2709ReadStream, require('stream'));
 
 
-var ReaderMarcxml = function(stream) {
+var MarcxmlReadStream = function(stream) {
 
     var self = this,
         buffer = '';
 
+    this.readable = true;
     this.count = 0;
 
     this.parse = function(xml) {
@@ -139,7 +140,7 @@ var ReaderMarcxml = function(stream) {
             var raw = buffer.substr(0, pos+9);
             buffer = buffer.substr(pos+10);
             self.count++;
-            self.emit('next', self.parse(raw));
+            self.emit('data', self.parse(raw));
         }
     });
 
@@ -147,7 +148,7 @@ var ReaderMarcxml = function(stream) {
         self.emit('end');
     })
 };
-util.inherits(ReaderMarcxml, events.EventEmitter);
+util.inherits(MarcxmlReadStream, require('stream'));
 
 
 var WriterText = function() {
@@ -157,16 +158,17 @@ var WriterText = function() {
     this.write = function(record) {
         var lines = [];
         record.fields.forEach(function(element, index) {
-            var tag = element.shift();
+            var i=0;
+            var tag = element[i++];
             var line = tag + ' ';
             if ( tag < '010') {
-                line = line + '   ' + element.shift();
+                line = line + '   ' + element[i];
             } else {
-                line = line + element.shift() + ' '; // Les indicateur
+                line = line + element[i++] + ' '; // Les indicateur
                 var first = 1;
-                while (element.length > 0) {
+                while (i < element.length) {
                     if (!first) line = line + ' ';
-                    line = line + '$' + element.shift() + ' ' + element.shift();
+                    line = line + '$' + element[i++] + ' ' + element[i++];
                     first = 0;
                 }
             }
@@ -193,7 +195,7 @@ var WriterIso2709 = function(stream) {
         return i;
     }
 
-    this.begin = this.end = function() {};
+    this.end = function() {};
 
     this.write = function(record) {
         var directory = '',
@@ -232,11 +234,9 @@ var WriterIso2709 = function(stream) {
 
 var WriterMarcxml = function(stream) {
 
-    this.begin = function() {
-        stream.write(new Buffer(
-            '<collection xmlns="http://www.loc.gov/MARC21/slim">'
-        ));
-    };
+    stream.write(new Buffer(
+        '<collection xmlns="http://www.loc.gov/MARC21/slim">'
+    ));
 
     this.write = function(record) {
         var doc = new libxmljs.Document();
@@ -267,8 +267,8 @@ var WriterMarcxml = function(stream) {
 
 };
 
-exports.ReaderIso2709 = ReaderIso2709;
-exports.ReaderMarcxml = ReaderMarcxml;
+exports.Iso2709ReadStream = Iso2709ReadStream;
+exports.MarcxmlReadStream = MarcxmlReadStream;
 exports.WriterText = WriterText;
 exports.WriterIso2709 = WriterIso2709;
 exports.WriterMarcxml = WriterMarcxml;
