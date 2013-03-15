@@ -1,0 +1,16 @@
+{
+  "name": "marcjs",
+  "version": "0.1.0",
+  "description": "Node.js module for manipulating MARC bibliographic records",
+  "author":"Frédéric Demians <f.demians@tamil.fr>",
+  "engines": {
+    "node" : ">=0.10.0"
+  },
+  "dependencies": {
+    "libxmljs": "0.0.0"
+  },
+  "repository": {
+    "type":"git",
+    "url":"https://github.com/fredericd/marcjs"
+  }
+}
