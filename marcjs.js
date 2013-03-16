@@ -3,6 +3,51 @@ var util = require('util'),
     libxmljs = require("libxmljs");;
 
 
+var Record = function(type) {
+
+    var formater = {
+        text: TextWriter.format,
+        marcxml: MarcxmlWriter.format
+    };
+
+    this.as = function(type) {
+        var format = formater[type.toLowerCase()];
+        if (format) {
+            return format(this);
+        } else {
+            throw new Error('Unknown MARC record format: ' + type);
+        }
+    };
+
+    // Append field(s) to the record in tag order
+    // Example:
+    // record.append(['606', '  ', 'a', 'Ehnography', 'x', Africa], ['607', '  ', 'a', 'Togo']);
+    this.append = function() {
+        if (arguments.length === -1) return;
+        // FIXME: We should validate the subfields 
+        var tag = arguments[0][0],
+            fields = [],
+            old = this.fields,
+            notdone = true;
+        for (var i=0; i < old.length; i++) {
+            if (notdone && old[i][0] > tag) {
+                for (var j=0; j < arguments.length; j++) {
+                    fields.push(arguments[j]);
+                }
+                notdone = false;
+            }
+            fields.push(old[i]);
+        }
+        if (notdone) {
+            for (var j=0; j < arguments.length; j++) {
+                fields.push(arguments[j]);
+            }
+        }
+        this.fields = fields;
+    };
+
+};
+
 
 var Iso2709ReadStream = function(stream) {
     
@@ -14,7 +59,7 @@ var Iso2709ReadStream = function(stream) {
     this.count = 0;
 
     this.parse = function(data) {
-        var record = {};
+        var record = new Record();
         record.leader = data.toString('utf8', 0, 24);
         var directory_len = parseInt(data.toString('utf8', 12, 17)) - 25;
         var number_of_tag = directory_len / 12;
@@ -151,36 +196,45 @@ var MarcxmlReadStream = function(stream) {
 util.inherits(MarcxmlReadStream, require('stream'));
 
 
-var WriterText = function() {
+//
+// Text Writer
+//
+
+var TextWriter = function(stream) {
 
     this.begin = this.end = function() {};
 
     this.write = function(record) {
-        var lines = [];
-        record.fields.forEach(function(element, index) {
-            var i=0;
-            var tag = element[i++];
-            var line = tag + ' ';
-            if ( tag < '010') {
-                line = line + '   ' + element[i];
-            } else {
-                line = line + element[i++] + ' '; // Les indicateur
-                var first = 1;
-                while (i < element.length) {
-                    if (!first) line = line + ' ';
-                    line = line + '$' + element[i++] + ' ' + element[i++];
-                    first = 0;
-                }
-            }
-            lines.push(line);
-        });
-        return lines.join("\n");
+        stream.write(WriterText.format(record));
     };
 
 };
 
+TextWriter.format = function(record) {
+    var lines = [ record.leader ];
+    record.fields.forEach(function(element, index) {
+        var i=0;
+        var tag = element[i++];
+        var line = tag + ' ';
+        if ( tag < '010') {
+            line = line + '   ' + element[i];
+        } else {
+            line = line + element[i++] + ' '; // Les indicateur
+            var first = 1;
+            while (i < element.length) {
+                if (!first) line = line + ' ';
+                line = line + '$' + element[i++] + ' ' + element[i++];
+                first = 0;
+            }
+        }
+        lines.push(line);
+    });
+    return lines.join("\n");        
+};
 
-var WriterIso2709 = function(stream) {
+
+
+var Iso2709Writer = function(stream) {
 
     var FT = '\x1e', // Field terminator
         RT = '\x1d', // Record terminator
@@ -232,31 +286,14 @@ var WriterIso2709 = function(stream) {
 };
 
 
-var WriterMarcxml = function(stream) {
+var MarcxmlWriter = function(stream) {
 
     stream.write(new Buffer(
         '<collection xmlns="http://www.loc.gov/MARC21/slim">'
     ));
 
     this.write = function(record) {
-        var doc = new libxmljs.Document();
-        var rn = doc.node('record');
-        rn.node('leader', record.leader);
-        record.fields.forEach(function(element, index) {
-            var attr = { tag: element[0] };
-            if (attr.tag < '010') {
-                rn.node('controlfield', element[1]).attr(attr);
-            } else {
-                var ind = element[1];
-                attr.ind1 = ind.substr(0,1);
-                attr.ind2 = ind.substr(1);
-                var fn = rn.node('datafield').attr(attr);
-                for (var i=2; i < element.length; i=i+2) {
-                    fn.node('subfield', element[i+1]).attr({'code': element[i]});
-                }    
-            }
-        });
-        stream.write(new Buffer(rn.toString(true)));
+        stream.write(new Buffer(MarcxmlWriter.format(record)));
     };
 
     this.end = function() {
@@ -264,11 +301,32 @@ var WriterMarcxml = function(stream) {
             '</collection>'
         ));
     };
-
 };
 
+MarcxmlWriter.format = function(record) {
+    var doc = new libxmljs.Document();
+    var rn = doc.node('record');
+    rn.node('leader', record.leader);
+    record.fields.forEach(function(element, index) {
+        var attr = { tag: element[0] };
+        if (attr.tag < '010') {
+            rn.node('controlfield', element[1]).attr(attr);
+        } else {
+            var ind = element[1];
+            attr.ind1 = ind.substr(0,1);
+            attr.ind2 = ind.substr(1);
+            var fn = rn.node('datafield').attr(attr);
+            for (var i=2; i < element.length; i=i+2) {
+                fn.node('subfield', element[i+1]).attr({'code': element[i]});
+            }    
+        }
+    });
+    return rn.toString();
+};
+
+    
 exports.Iso2709ReadStream = Iso2709ReadStream;
 exports.MarcxmlReadStream = MarcxmlReadStream;
-exports.WriterText = WriterText;
-exports.WriterIso2709 = WriterIso2709;
-exports.WriterMarcxml = WriterMarcxml;
+exports.TextWriter = TextWriter;
+exports.Iso2709Writer = Iso2709Writer;
+exports.MarcxmlWriter = MarcxmlWriter;
