@@ -1,8 +1,5 @@
 <collection xmlns="http://www.loc.gov/MARC21/slim">
 <record>
-  <leader>00026nam a22000253n 450 </leader>
-</record>
-<record>
   <leader>01243nam a22002173n 450 </leader>
   <controlfield tag="001">FRBNF323046990000009</controlfield>
   <controlfield tag="009">http://catalogue.bnf.fr/ark:/12148/cb32304699p</controlfield>
