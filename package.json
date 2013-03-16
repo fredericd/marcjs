@@ -1,22 +1,40 @@
 {
   "name": "marcjs",
+  "description": "MARC record node.js library",
   "version": "0.1.0",
-  "description": "Node.js module for manipulating MARC bibliographic records",
-  "author": "Frédéric Demians <f.demians@tamil.fr>",
+  "homepage": "https://github.com/fredericd/marcjs",
+  "author": {
+    "name": "Frédéric Demians",
+    "email": "f.demians@tamil.fr"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fredericd/marcjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fredericd/marcjs/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/fredericd/marcjs/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "lib/marcjs",
   "engines": {
-    "node": ">=0.10.0"
+    "node": ">= 0.6.0"
+  },
+  "scripts": {
+    "test": "grunt nodeunit"
   },
   "dependencies": {
     "libxmljs": "~0.7.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
     "grunt-contrib-jshint": "~0.1.1",
     "grunt-contrib-nodeunit": "~0.1.2",
-    "libxmljs": "~0.7.1"
+    "grunt-contrib-watch": "~0.2.0",
+    "grunt": "~0.4.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/fredericd/marcjs"
-  }
+  "keywords": []
 }

@@ -1,13 +1,25 @@
 # marcjs
 
-Node.js module for manipulating MARC bibliographic records.
+MARC record node.js library
 
-## Installation
+## Getting Started
 
-* Install __node.js libraries__:
- 
-        npm install libxmljs
+Install the module with: `npm install marcjs`
 
-## Usage
+```javascript
+var marcjs = require('marcjs');
+marcjs.Record();
+```
+
+## Documentation
+_(Coming soon)_
+
+## Examples
+_(Coming soon)_
 
 
+## Release History
+
+## License
+Copyright (c) 2013 Frédéric Demians  
+Licensed under the MIT license.
