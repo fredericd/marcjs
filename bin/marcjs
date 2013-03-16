@@ -2,7 +2,7 @@
 
 var nopt   = require('nopt'),
     fs     = require('fs'),
-    marcjs = require('../lib/marcjs');
+    marcjs = require('marcjs');
 
 var parsed = nopt(
     {
@@ -34,11 +34,9 @@ if ( parsed.argv.remain.length === 0 ) {
 
 var output = parsed.output ? fs.createWriteStream(parsed.output)
                            : process.stdout;
+var writer = marcjs.getWriter(output, parsed.formater);
 parsed.argv.remain.forEach(function(file) {
     var input = fs.createReadStream(file);
     var reader = marcjs.getReader(input, parsed.parser);
-    var writer = marcjs.getWriter(output, parsed.formater);
-    reader.on('data', function(record) {
-        writer.write(record);
-    });
+    reader.on('data', function(record) { writer.write(record); });
 });
