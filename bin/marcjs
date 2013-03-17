@@ -2,12 +2,13 @@
 
 var nopt   = require('nopt'),
     fs     = require('fs'),
+    async  = require('async'),
     marcjs = require('marcjs');
 
 var parsed = nopt(
     {
         "parser": ["iso2709","marcxml"],
-        "formater": ["text","iso2709","marcxml"],
+        "formater": ["text","iso2709","marcxml","json"],
         "output": String,
         "help": Boolean
     },
@@ -35,8 +36,13 @@ if ( parsed.argv.remain.length === 0 ) {
 var output = parsed.output ? fs.createWriteStream(parsed.output)
                            : process.stdout;
 var writer = marcjs.getWriter(output, parsed.formater);
+var tasks = [];
 parsed.argv.remain.forEach(function(file) {
-    var input = fs.createReadStream(file);
-    var reader = marcjs.getReader(input, parsed.parser);
-    reader.on('data', function(record) { writer.write(record); });
+    tasks.push(function(callback) {
+        var input = fs.createReadStream(file);
+        var reader = marcjs.getReader(input, parsed.parser);
+        reader.on('data', function(record) { writer.write(record); });
+        reader.on('end', function() { callback(null); });
+    });
 });
+async.series(tasks, function() { writer.end(); });

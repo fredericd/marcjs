@@ -28,7 +28,8 @@
     "test": "grunt nodeunit"
   },
   "dependencies": {
-    "libxmljs": "~0.7.1"
+    "libxmljs": "~0.7.1",
+    "async": "~0.2.6"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "~0.1.1",

@@ -2,8 +2,8 @@
 var marc = require('../lib/marcjs'),
     fs   = require('fs');
 
-var reader = new marc.MarcxmlReadStream(fs.createReadStream('test/data/bib.xml'));
-var xmlWriter = new marc.MarcxmlWriter(fs.createWriteStream('test/data/bib-out.xml'));
+var reader = new marc.MarcxmlReader(fs.createReadStream('test/data/bib.xml'));
+var xmlWriter = new marc.JsonWriter(fs.createWriteStream('test/data/bib-out.xml'));
 
 reader.on('data', function(record) {
     record.append([ '999', '  ', 'a', 'Demians', 'b', 'Frédéric'], [ '206', '  ', 'a', 'Demians Pauline']);
