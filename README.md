@@ -20,12 +20,12 @@ a ISO2709 file, a MARCXML file, a JSON file, and a text file.
 var marcjs = require('marcjs'),
     fs     = require('fs');
 
-var reader = new marc.IsoReader(fs.createReadStream('bib.mrc'));
+var reader = new marc.Iso2709Reader(fs.createReadStream('bib.mrc'));
 var writers = [
     new marc.MarcxmlWriter(fs.createWriteStream('bib-edited.xml')),
     new marc.Iso2709Writer(fs.createWriteStream('bib-edited.mrc')),
     new marc.JsonWriter(fs.createWriteStream('bib-edited.json')),
-    new marc.JsonWriter(fs.createWriteStream('bib-edited.txt'))
+    new marc.TextWriter(fs.createWriteStream('bib-edited.txt'))
 ];
 
 reader.on('data', function(record) {
