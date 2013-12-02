@@ -20,24 +20,21 @@ describe('Record', function() {
     });
 });
 describe('Iso2709ReadStream', function() {
-    it('constructor exists', function() {
-        assert(typeof(m.Iso2709ReadStream) === 'function');
+    var stream, reader;
+    before(function () {
+        stream = fs.createReadStream('test/data/bib-one.mrc');
     });
-    var stream = fs.createReadStream('test/data/bib-one.mrc');
-    console.log(stream);
+    it('constructor exists', function() {
+        assert(typeof(m.Iso2709Reader) === 'function');
+    });
     it('bib-one.mrc file exists', function() {
         assert(stream);
     })
-    var reader = new m.Iso2709ReadStream(stream);
     it('first read record', function(done) {
-        console.log('On attend');
+        reader = new m.Iso2709Reader(stream);
         reader.on('data', function(record) {
-            console.log(record);
-            console.log('---');
-            it('leader', function() {
-                assert(record.leader == '00811nam  2200241   4500');
-            });
-            done();
+            assert(record.leader == '00811nam  2200241   4500');
         });
+        reader.on('end', function () { done(); });
     });
 });
