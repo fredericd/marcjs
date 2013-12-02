@@ -3,12 +3,12 @@
 var nopt   = require('nopt'),
     fs     = require('fs'),
     async  = require('async'),
-    marcjs = require('marcjs');
+    marcjs = require('../lib/marcjs');
 
 var parsed = nopt(
     {
         "parser": ["iso2709","marcxml"],
-        "formater": ["text","iso2709","marcxml","json"],
+        "formater": ["text","iso2709","marcxml","json","mij"],
         "output": String,
         "help": Boolean
     },
@@ -22,7 +22,7 @@ var parsed = nopt(
 
 function usage() {
     console.log(
-        "Usage: marcjs -p iso2709|marcxml -f text|iso2709|marcjs -o result file1 file2"
+        "Usage: marcjs -p iso2709|marcxml -f text|iso2709|marcjs|mij -o result file1 file2"
     );
 }
 
