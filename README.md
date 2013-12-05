@@ -7,8 +7,8 @@ MARC record node.js library
 Install the module with: `npm install marcjs`
 
 ```javascript
-var marcjs = require('marcjs');
-marcjs.Record();
+var marc = require('marcjs');
+marc.Record();
 ```
 
 ## Usage
@@ -17,8 +17,8 @@ This script read a ISO2709 file, add a field to each reacord read, and write eac
 a ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
-var marcjs = require('marcjs'),
-    fs     = require('fs');
+var marc = require('marcjs'),
+    fs   = require('fs');
 
 var reader = new marc.Iso2709Reader(fs.createReadStream('bib.mrc'));
 var writers = [
@@ -38,7 +38,7 @@ reader.on('data', function(record) {
 var intervalId = setInterval(function() { console.log(reader.count); }, 100);
 reader.on('end', function(){
     writers.forEach(function(writer) { writer.end();} );
-    console.log("FIN");
+    console.log("END");
     clearInterval(intervalId);
 });
 ```
@@ -161,6 +161,10 @@ Example:
     ]
 }
 ```
+
+## Record object
+
+Record object has several properties:
 
 
 ## Release History
