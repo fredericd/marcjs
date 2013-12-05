@@ -164,8 +164,78 @@ Example:
 
 ## Record object
 
-Record object has several properties:
+Record object has several methods:
 
+  * append()
+  * as()
+  * toMiJ()
+
+### append()
+
+Append an array of fields to the record. Fields are inserted in order, based on the tag of the first field. Returns the record itself, so chaining is possible. For example:
+
+```javascript
+record
+    .append(['952', '  ', 'a', 'MAIN', 'b', 'ANNEX', 'f', '12456', 'i', 'BOOK'],
+            ['952', '  ', 'a', 'MAIN', 'b', 'MAIN', 'f', '45626', 'i', 'DVD'])
+    .append(['801', '  ', 'a', 'MYLIB']);
+```
+
+### as(format)
+
+Return a string representation of the record, in a specific format given as method parameter:
+
+  * **text** -- A human readable version of the MARC record.
+  * **iso2709** -- Legacy ISO2709 format.
+  * **marcxml** -- Standard MARCXML.
+  * **json** -- JSON stringified version of the native record object.
+  * **mij** -- MARC-in-JSON. Alternative serialization format, as described here: http://dilettantes.code4lib.org/blog/2010/09/a-proposal-to-serialize-marc-in-json/ 
+
+Example:
+
+```javascript
+var marc = require('marcjs');
+var record = New marc.Record();
+record.append(['245', ' 1', 'a', 'MARC history:', 'b', 'to the end'], ['100', '  ', 'a', 'Fredo']);
+console.log(record.as('text'));
+console.log(record.as('mij'));
+console.log(record.as('marcxml'));
+```
+
+### toMiJ()
+
+Returns a JavaScript object in MARC-in-JSON format.
+
+Example:
+
+```javascript
+var stream = new marcjs.MarcxmlReader(new ZOOMStream('lx2.loc.gov:210/LCDB', '@attr 1=7 "087111559X"'));
+stream.on('data', function (rec) {
+    res.render('marc', rec.as('mij');
+});
+```
+
+## marcjs methods
+
+The module exports several functions:
+
+  * getReader
+  * getWriter
+  * ISO2709Reader
+  * MarcxmlReader
+  * ISO2709Writer
+  * MarcxmlWriter
+  * JsonWriter
+  * TextWriter
+  * MijWriter
+
+### getReader(format) 
+
+Returns a reader for specific serialisation format. Available format: iso2709, marcxml.
+
+### getWriter(format)
+
+Returns a writer for a specific serialisation format: iso2709, marcxml, ison, text, mij.
 
 ## Release History
 
