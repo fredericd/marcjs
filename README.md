@@ -211,9 +211,12 @@ Example:
 ```javascript
 var stream = new marcjs.MarcxmlReader(new ZOOMStream('lx2.loc.gov:210/LCDB', '@attr 1=7 "087111559X"'));
 stream.on('data', function (rec) {
-    res.render('marc', rec.as('mij');
+    res.render('marc', rec.toMiJ());
 });
+
 ```
+
+Note the subttle distinction between `record.toMij()` and `record.as('mij')`: the first returns a JS object in MARC-in-JSON format, the second returns the string representation of this object. 
 
 ## marcjs methods
 
