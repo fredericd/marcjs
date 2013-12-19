@@ -13,8 +13,8 @@ marc.Record();
 
 ## Usage
 
-This script read a ISO2709 file, add a field to each reacord read, and write each record into 
-a ISO2709 file, a MARCXML file, a JSON file, and a text file.
+This script reads an ISO2709 file, adds a field to each record, and writes each record into 
+an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
 var marc = require('marcjs'),
@@ -45,7 +45,7 @@ reader.on('end', function(){
 
 ## Javascript MARC record representation
 
-The library manipulate MARC biblio records as native Javascript object which has two properties: `leader` and `fields`.
+The library manipulates MARC biblio records as native Javascript objects which have two properties: `leader` and `fields`.
 
 Example:
 
@@ -164,7 +164,7 @@ Example:
 
 ## Record object
 
-Record object has several methods:
+The record object has several methods:
 
   * append()
   * as()
@@ -216,7 +216,7 @@ stream.on('data', function (rec) {
 
 ```
 
-Note the subttle distinction between `record.toMij()` and `record.as('mij')`: the first returns a JS object in MARC-in-JSON format, the second returns the string representation of this object. 
+Note the subtle distinction between `record.toMij()` and `record.as('mij')`: the first returns a JS object in MARC-in-JSON format, the second returns the string representation of this object. 
 
 ## marcjs methods
 
