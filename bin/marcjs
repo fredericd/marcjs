@@ -6,31 +6,31 @@ var nopt   = require('nopt'),
     marcjs = require('../lib/marcjs');
 
 var parsed = nopt(
-    {
-        "parser": ["iso2709","marcxml","mij"],
-        "formater": ["text","iso2709","marcxml","json","mij"],
-        "output": String,
-        "help": Boolean
-    },
-    {
-        "p": "--parser",
-        "f": "--formater",
-        "o": "--output"
-    },
-    process.argv, 2
+  {
+    "parser": ["iso2709","marcxml","mij"],
+    "formater": ["text","iso2709","marcxml","json","mij"],
+    "output": String,
+    "help": Boolean
+  },
+  {
+    "p": "--parser",
+    "f": "--formater",
+    "o": "--output"
+  },
+  process.argv, 2
 );
 
 function usage() {
-    console.log(
-        "Usage: marcjs -p iso2709|marcxml|mij -f text|iso2709|marcjs|mij -o result file1 file2"
-    );
+  console.log(
+    "Usage: marcjs -p iso2709|marcxml|mij -f text|iso2709|marcjs|mij -o result file1 file2"
+  );
 }
 
 parsed.parser = parsed.parser || 'iso2709';
 parsed.formater = parsed.formater || 'text';
 if ( parsed.argv.remain.length === 0 ) {
-    usage();
-    process.exit(1);
+  usage();
+  process.exit(1);
 }
 
 var output = parsed.output ? fs.createWriteStream(parsed.output)
@@ -38,11 +38,11 @@ var output = parsed.output ? fs.createWriteStream(parsed.output)
 var writer = marcjs.getWriter(output, parsed.formater);
 var tasks = [];
 parsed.argv.remain.forEach(function(file) {
-    tasks.push(function(callback) {
-        var input = fs.createReadStream(file);
-        var reader = marcjs.getReader(input, parsed.parser);
-        reader.on('data', function(record) { writer.write(record); });
-        reader.on('end', function() { callback(null); });
-    });
+  tasks.push(function(callback) {
+    var input = fs.createReadStream(file);
+    var reader = marcjs.getReader(input, parsed.parser);
+    reader.on('data', function(record) { writer.write(record); });
+    reader.on('end', function() { callback(null); });
+  });
 });
 async.series(tasks, function() { writer.end(); });
