@@ -63,7 +63,7 @@ describe('MiJWriter', function () {
   before(function (done) {
     var stream = fs.createReadStream('test/data/bib-one.mrc');
     reader = new m.Iso2709Reader(stream);
-    reader.on('data', function (rec) { record = JSON.parse(m.MiJWriter.format(rec)); });
+    reader.on('data', function (rec) { record = rec.toMiJ(); });
     reader.on('end', function () { done(); });
   });
   it('generates correct MiJ representation', function () {
