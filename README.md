@@ -1,6 +1,6 @@
 # marcjs
 
-MARC record node.js library
+MARC record node.js library [![Build Status](https://travis-ci.org/fredericd/marcjs.png?branch=master)](https://travis-ci.org/fredericd/marcjs)
 
 ## Getting Started
 
