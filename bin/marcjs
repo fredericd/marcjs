@@ -28,21 +28,23 @@ function usage() {
 
 parsed.parser = parsed.parser || 'iso2709';
 parsed.formater = parsed.formater || 'text';
-if ( parsed.argv.remain.length === 0 ) {
-  usage();
-  process.exit(1);
-}
 
 var output = parsed.output ? fs.createWriteStream(parsed.output)
                            : process.stdout;
 var writer = marcjs.getWriter(output, parsed.formater);
 var tasks = [];
-parsed.argv.remain.forEach(function(file) {
+var addTask = function(input) {
   tasks.push(function(callback) {
-    var input = fs.createReadStream(file);
     var reader = marcjs.getReader(input, parsed.parser);
     reader.on('data', function(record) { writer.write(record); });
     reader.on('end', function() { callback(null); });
   });
-});
+};
+if (parsed.argv.remain.length > 0) {
+  parsed.argv.remain.forEach(function(file) {
+    addTask(fs.createReadStream(file));
+  });
+} else {
+  addTask(process.stdin);
+}
 async.series(tasks, function() { writer.end(); });
