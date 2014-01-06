@@ -3,6 +3,12 @@ var marc = require('../lib/marcjs'),
     fs   = require('fs');
 
 
+
+var reader = new marc.getReader(fs.createReadStream('b.mrc'), 'iso2709');
+var writer = new marc.getWriter(process.stdout, 'iso2709');
+reader.pipe(writer);
+
+/*
 var reader = new marc.MarcxmlReader(fs.createReadStream('test/data/bib.xml'));
 //var writer = new marc.JsonWriter(fs.createWriteStream('test/data/bib-out.xml'));
 var writer = new marc.MiJWriter(fs.createWriteStream('test/data/bib-out.mij'));
@@ -22,3 +28,4 @@ reader.on('end', function(){
     console.log("END");
     clearInterval(intervalId);
 });
+*/

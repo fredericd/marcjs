@@ -31,7 +31,7 @@ describe('Iso2709ReadStream', function() {
     reader.should.have.property('pause');
     reader.should.have.property('resume');
     reader.on('data', function(record) {
-      record.leader.should.equal('00811nam  2200241   4500');
+      record.leader.should.equal('00711nam  2200217   4500');
     });
     reader.on('end', function () { done(); });
   });

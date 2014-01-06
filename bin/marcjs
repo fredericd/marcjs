@@ -24,7 +24,9 @@ function usage() {
   console.log(
     "Usage: marcjs -p iso2709|marcxml|mij -f text|iso2709|marcjs|mij -o result file1 file2"
   );
+  process.exit(1);
 }
+if (parsed.help) { usage(); }
 
 parsed.parser = parsed.parser || 'iso2709';
 parsed.formater = parsed.formater || 'text';
@@ -36,7 +38,7 @@ var tasks = [];
 var addTask = function(input) {
   tasks.push(function(callback) {
     var reader = marcjs.getReader(input, parsed.parser);
-    reader.on('data', function(record) { writer.write(record); });
+    reader.on('data', function(record) { writer._write(record, null, callback); });
     reader.on('end', function() { callback(null); });
   });
 };
