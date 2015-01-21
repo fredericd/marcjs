@@ -160,6 +160,7 @@ Example:
       "2",
       "intermrc"
     ]
+  ]
 }
 ```
 
