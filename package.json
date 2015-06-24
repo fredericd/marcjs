@@ -36,7 +36,7 @@
     "test": "grunt mochaTest"
   },
   "dependencies": {
-    "libxmljs": "~0.7.1",
+    "libxmljs": "~0.14.2",
     "nopt": "~2.1.0",
     "async": "~0.2.6"
   },
