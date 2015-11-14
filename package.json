@@ -36,9 +36,9 @@
     "test": "grunt mochaTest"
   },
   "dependencies": {
-    "libxmljs": "~0.7.1",
-    "nopt": "~2.1.0",
-    "async": "~0.2.6"
+    "async": "~0.2.6",
+    "libxmljs": "^0.15.0",
+    "nopt": "~2.1.0"
   },
   "devDependencies": {
     "grunt-contrib-jshint": "~0.1.1",
