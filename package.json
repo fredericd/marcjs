@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "async": "~0.2.6",
-    "libxmljs": "^0.14.2",
+    "libxmljs": "^0.15.0",
     "nopt": "~2.1.0"
   },
   "devDependencies": {
