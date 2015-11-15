@@ -245,5 +245,5 @@ Returns a writer for a specific serialisation format: iso2709, marcxml, ison, te
 ## Release History
 
 ## License
-Copyright (c) 2013 Frédéric Demians  
+Copyright (c) 2013-2015 Frédéric Demians  
 Licensed under the MIT license.
