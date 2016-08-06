@@ -37,6 +37,20 @@ describe('Iso2709ReadStream', function() {
   });
 });
 
+describe('Issue #16', function() {
+  var stream, reader;
+  before(function () {
+    stream = fs.createReadStream('test/data/error.mrc');
+  });
+  it('reads record without error', function(done) {
+    reader = new m.Iso2709Reader(stream);
+    reader.on('data', function(record) {
+      record.toMiJ();
+    });
+    reader.on('end', function () { done(); });
+  });
+});
+
 describe('MiJWriter', function () {
   var reader, record;
   var result = {
