@@ -56,6 +56,12 @@ var addTask = function(input) {
         callbackCalled = true;
       }
     });
+    reader.on('error', function(err) {
+      if (!callbackCalled) {
+        callback(err);
+        callbackCalled = true;
+      }
+    });
   });
 };
 if (parsed.argv.remain.length > 0) {
@@ -65,4 +71,9 @@ if (parsed.argv.remain.length > 0) {
 } else {
   addTask(process.stdin);
 }
-async.series(tasks, function() { writer.end(); });
+async.series(tasks, function(err) {
+  if (err !== null) {
+    console.error(err);
+  }
+  writer.end();
+});
