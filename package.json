@@ -36,16 +36,17 @@
     "test": "grunt mochaTest"
   },
   "dependencies": {
-    "async": "~0.2.6",
+    "async": "^2.5.0",
     "libxmljs": "^0.18.0",
-    "nopt": "~2.1.0"
+    "nopt": "^4.0.1"
   },
   "devDependencies": {
-    "grunt": "~0.4.1",
+    "grunt": "^1.0.1",
     "grunt-cli": "^1.2.0",
-    "grunt-contrib-jshint": "~0.1.1",
-    "grunt-contrib-watch": "~0.2.0",
-    "grunt-mocha-test": "~0.8.0",
-    "should": "~2.0.0"
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-mocha-test": "^0.13.2",
+    "mocha": "^3.4.2",
+    "should": "^11.2.1"
   }
 }
