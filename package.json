@@ -30,7 +30,7 @@
   ],
   "main": "lib/marcjs",
   "engines": {
-    "node": ">= 0.6.0"
+    "node": ">= 8"
   },
   "scripts": {
     "test": "grunt mochaTest"
