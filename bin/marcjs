@@ -37,9 +37,22 @@ var writer = marcjs.getWriter(output, parsed.formater);
 var tasks = [];
 var addTask = function(input) {
   tasks.push(function(callback) {
+    var callbackCalled = false;
     var reader = marcjs.getReader(input, parsed.parser);
-    reader.on('data', function(record) { writer._write(record, null, callback); });
-    reader.on('end', function() { callback(null); });
+    reader.on('data', function(record) {
+      writer._write(record, null, function(err) {
+        if (err !== null && !callbackCalled) {
+          callback(err);
+          callbackCalled = true;
+        }
+      });
+    });
+    reader.on('end', function() {
+      if (!callbackCalled) {
+        callback(null);
+        callbackCalled = true;
+      }
+    });
   });
 };
 if (parsed.argv.remain.length > 0) {
