@@ -44,6 +44,9 @@ var addTask = function(input) {
         if (err !== null && !callbackCalled) {
           callback(err);
           callbackCalled = true;
+          reader.pause();
+          reader.removeAllListeners('data');
+          reader.destroy(err);
         }
       });
     });
