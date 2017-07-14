@@ -108,6 +108,7 @@ describe('Iso2709ReadStream incremental reading', function () {
     reader.on('data', function(parsedRecord) {
       try {
         parsedRecord.leader.should.equal(curRec.leader);
+        reader.count.should.equal(curRecIdx + 1);
         pumpNextRecord();
       }
       catch (err) {
