@@ -37,9 +37,9 @@ reader.on('data', record => {
   writers.forEach(writer => writer.write(record) );
 });
 var intervalId = setInterval(() => { console.log(reader.count); }, 100);
-reader.on('end', function(){
+reader.on('end', () => {
     writers.forEach(writer => writer.end());
-    console.log("END");
+    console.log("Number of processed biblio record: " + reader.count);
     clearInterval(intervalId);
 });
 ```
@@ -171,6 +171,8 @@ The record object has several methods:
 
   * append()
   * as()
+  * get()
+  * match()
 
 ### append()
 
@@ -208,14 +210,15 @@ console.log(record.as('marcxml'));
 
 ### getReadable(stream, format) 
 
-Returns a reader for specific serialisation format. Available format: iso2709,
+Returns a readable stream for specific serialisation format. Available format: iso2709,
 marcxml, mij.
 
 Example:
 
 ```javascript
 let marc = require('marcjs');
-let reader = marc.Record.getReadable(process.stdin, 'marcxml');
+let readable = marc.Record.getReadable(process.stdin, 'marcxml');
+let writable = marc.Record.getWritable(process.stdout, 'text');
 ```
 
 ### getWritable(stream, format)
@@ -224,17 +227,37 @@ Returns a writer for a specific serialisation format: iso2709, marcxml, json,
 text, mij.
 
 
-## marcjs methods
+## marcjs classes
 
-The module exports several functions:
+The module exports several classes:
 
   * ISO2709 — Duplex stream
   * Marcxml — Duplex stream
-  * ISO2709 — Duplex stream
-  * Json — Writable stream
   * Text — Writable stream
+  * Json — Writable stream
   * Mij — Duplex stream
   * Transform — Transform stream
+
+### Iso2709
+
+To read/write ISO2709 files. It's a duplex stream.
+
+It has two class methods to parse/serialize biblio Record objet from/to Iso2709 :
+
+  * Iso2709.format(record) — equivalent to `record.as('iso2709')`
+  * Iso2709.parse(raw)
+
+For example:
+
+```JavaScript
+let marc = require('marcjs');
+let record = New marc.Record();
+record.append(['245', ' 1', 'a', 'MARC history:', 'b', 'to the end'], ['100', '  ', 'a', 'Fredo']);
+let raw = marc.Record.format(record);
+console.log(raw);
+let rec = marc.Record.parse(raw);
+// Here rec = record
+```
 
 ## Release History
 
