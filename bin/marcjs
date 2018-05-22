@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-var nopt   = require('nopt'),
+let nopt   = require('nopt'),
     fs     = require('fs'),
     async  = require('async'),
     marcjs = require('../lib/marcjs');
 
-var parsed = nopt(
+let parsed = nopt(
   {
     "parser": ["iso2709","marcxml","mij"],
     "formater": ["text","iso2709","marcxml","json","mij"],
@@ -31,13 +31,13 @@ if (parsed.help) { usage(); }
 parsed.parser = parsed.parser || 'iso2709';
 parsed.formater = parsed.formater || 'text';
 
-var output = parsed.output ? fs.createWriteStream(parsed.output)
+let output = parsed.output ? fs.createWriteStream(parsed.output)
                            : process.stdout;
-var writer = marcjs.getWriter(output, parsed.formater);
-var tasks = [];
-var addTask = function(input) {
+let writer = marcjs.getWriter(output, parsed.formater);
+let tasks = [];
+let addTask = function(input) {
   tasks.push(function(callback) {
-    var reader = marcjs.getReader(input, parsed.parser);
+    let reader = marcjs.getReadable(input, parsed.parser);
     reader.on('data', function(record) { writer._write(record, null, callback); });
     reader.on('end', function() { callback(null); });
   });

@@ -1,16 +1,16 @@
 'use strict';
 
-var should = require('should'),
+let should = require('should'),
     fs     = require('fs'),
     m      = require('../lib/marcjs.js');
 
 describe('Record', function() {
-  var record = new m.Record();
+  let record = new m.Record();
   it('instantiate a new object', function() {
     record.should.be.instanceof(Object);
   });
   it('has standard properties', function() {
-    record.should.have.properties(['leader', 'as', 'toMiJ', 'append', 'fields']);
+    record.should.have.properties(['leader', 'fields', 'as', 'append', 'get', 'match']);
     record.fields.length.should.empty;
   });
   it('append a field', function(){
@@ -21,15 +21,16 @@ describe('Record', function() {
   });
 });
 describe('Iso2709ReadStream', function() {
-  var stream, reader;
+  let stream, reader;
   before(function () {
     stream = fs.createReadStream('test/data/bib-one.mrc');
   });
   it('first read record', function(done) {
-    reader = new m.Iso2709Reader(stream);
-    reader.should.have.property('parse');
-    reader.should.have.property('pause');
-    reader.should.have.property('resume');
+    reader = new m.Iso2709(stream);
+    reader.should.have.property('_read');
+    reader.should.have.property('_write');
+    //reader.should.have.property('parse');
+    //reader.should.have.property('format');
     reader.on('data', function(record) {
       record.leader.should.equal('00711nam  2200217   4500');
     });
@@ -38,22 +39,22 @@ describe('Iso2709ReadStream', function() {
 });
 
 describe('Issue #16', function() {
-  var stream, reader;
+  let stream, reader;
   before(function () {
     stream = fs.createReadStream('test/data/error.mrc');
   });
   it('reads record without error', function(done) {
-    reader = new m.Iso2709Reader(stream);
+    reader = new m.Iso2709(stream);
     reader.on('data', function(record) {
-      record.toMiJ();
+      record.leader;
     });
     reader.on('end', function () { done(); });
   });
 });
 
-describe('MiJWriter', function () {
-  var reader, record;
-  var result = {
+describe('MiJ', function () {
+  let reader, record;
+  let result = {
       leader: '00711nam  2200217   4500',
       fields: [
         { '010': { ind1: ' ', ind2: ' ', subfields: [ { a: '2-07-074244-X' }, { b: 'br.' }, { d: '98 F' } ] } },
@@ -75,9 +76,9 @@ describe('MiJWriter', function () {
       ]
   };
   before(function (done) {
-    var stream = fs.createReadStream('test/data/bib-one.mrc');
-    reader = new m.Iso2709Reader(stream);
-    reader.on('data', function (rec) { record = rec.toMiJ(); });
+    let stream = fs.createReadStream('test/data/bib-one.mrc');
+    reader = new m.Iso2709(stream);
+    reader.on('data', (rec) => { record = JSON.parse(rec.as('MiJ')) });
     reader.on('end', function () { done(); });
   });
   it('generates correct MiJ representation', function () {

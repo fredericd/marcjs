@@ -18,27 +18,27 @@ This script reads an ISO2709 file, adds a field to each record, and writes each 
 an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
-var marc = require('marcjs'),
-    fs   = require('fs');
+const marc = require('marcjs'),
+      fs   = require('fs');
 
-var reader = new marc.Iso2709Reader(fs.createReadStream('bib.mrc'));
-var writers = [
-    new marc.MarcxmlWriter(fs.createWriteStream('bib-edited.xml')),
-    new marc.Iso2709Writer(fs.createWriteStream('bib-edited.mrc')),
-    new marc.JsonWriter(fs.createWriteStream('bib-edited.json')),
-    new marc.TextWriter(fs.createWriteStream('bib-edited.txt'))
+let reader = new marc.Iso2709Reader(fs.createReadStream('bib.mrc'));
+let writers = [
+    new marc.Marcxml(fs.createWriteStream('bib-edited.xml')),
+    new marc.Iso2709(fs.createWriteStream('bib-edited.mrc')),
+    new marc.Json(fs.createWriteStream('bib-edited.json')),
+    new marc.Text(fs.createWriteStream('bib-edited.txt'))
 ];
-
-reader.on('data', function(record) {
-    record.append(
-      [ '998', '  ', 'a', 'Demians', 'b', 'Frédéric'],
-      [ '999', '  ', 'a', 'Demians Pauline']
-    );
-    writers.forEach(function(writer) { writer.write(record);} );
+let trans = new marc.Transform(record => {
+  record.fields = record.fields.filter( field => field[0][0] !== '6' && field[0][0] !== '8' );
+  record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2018-05-21' ] );
 });
-var intervalId = setInterval(function() { console.log(reader.count); }, 100);
+
+reader.on('data', record => {
+  writers.forEach(writer => writer.write(record) );
+});
+var intervalId = setInterval(() => { console.log(reader.count); }, 100);
 reader.on('end', function(){
-    writers.forEach(function(writer) { writer.end();} );
+    writers.forEach(writer => writer.end());
     console.log("END");
     clearInterval(intervalId);
 });
@@ -46,7 +46,8 @@ reader.on('end', function(){
 
 ## Javascript MARC record representation
 
-The library manipulates MARC biblio records as native Javascript objects which have two properties: `leader` and `fields`.
+The library manipulates MARC biblio records as native Javascript objects which
+have two properties: `leader` and `fields`.
 
 Example:
 
@@ -170,11 +171,12 @@ The record object has several methods:
 
   * append()
   * as()
-  * toMiJ()
 
 ### append()
 
-Append an array of fields to the record. Fields are inserted in order, based on the tag of the first field. Returns the record itself, so chaining is possible. For example:
+Append an array of fields to the record. Fields are inserted in order, based on
+the tag of the first field. Returns the record itself, so chaining is possible.
+For example:
 
 ```javascript
 record
@@ -196,54 +198,46 @@ Return a string representation of the record, in a specific format given as meth
 Example:
 
 ```javascript
-var marc = require('marcjs');
-var record = New marc.Record();
+let marc = require('marcjs');
+let record = New marc.Record();
 record.append(['245', ' 1', 'a', 'MARC history:', 'b', 'to the end'], ['100', '  ', 'a', 'Fredo']);
 console.log(record.as('text'));
 console.log(record.as('mij'));
 console.log(record.as('marcxml'));
 ```
 
-### toMiJ()
+### getReadable(stream, format) 
 
-Returns a JavaScript object in MARC-in-JSON format.
+Returns a reader for specific serialisation format. Available format: iso2709,
+marcxml, mij.
 
 Example:
 
 ```javascript
-var stream = new marcjs.MarcxmlReader(new ZOOMStream('lx2.loc.gov:210/LCDB', '@attr 1=7 "087111559X"'));
-stream.on('data', function (rec) {
-    res.render('marc', rec.toMiJ());
-});
-
+let marc = require('marcjs');
+let reader = marc.Record.getReadable(process.stdin, 'marcxml');
 ```
 
-Note the subtle distinction between `record.toMij()` and `record.as('mij')`: the first returns a JS object in MARC-in-JSON format, the second returns the string representation of this object. 
+### getWritable(stream, format)
+
+Returns a writer for a specific serialisation format: iso2709, marcxml, json,
+text, mij.
+
 
 ## marcjs methods
 
 The module exports several functions:
 
-  * getReader
-  * getWriter
-  * ISO2709Reader
-  * MarcxmlReader
-  * ISO2709Writer
-  * MarcxmlWriter
-  * JsonWriter
-  * TextWriter
-  * MijWriter
-
-### getReader(format) 
-
-Returns a reader for specific serialisation format. Available format: iso2709, marcxml.
-
-### getWriter(format)
-
-Returns a writer for a specific serialisation format: iso2709, marcxml, ison, text, mij.
+  * ISO2709 — Duplex stream
+  * Marcxml — Duplex stream
+  * ISO2709 — Duplex stream
+  * Json — Writable stream
+  * Text — Writable stream
+  * Mij — Duplex stream
+  * Transform — Transform stream
 
 ## Release History
 
 ## License
-Copyright (c) 2013-2016 Frédéric Demians
+Copyright (c) 2018 Frédéric Demians
 Licensed under the MIT license.
