@@ -36,6 +36,9 @@
   "scripts": {
     "test": "grunt mochaTest"
   },
+  "bin": {
+    "marcjs":"bin/marcjs"
+  },
   "dependencies": {
     "libxmljs": "^0.18.0",
     "nopt": "~2.1.0"

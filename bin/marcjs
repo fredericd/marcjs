@@ -3,7 +3,7 @@
 let nopt   = require('nopt'),
     fs     = require('fs'),
     async  = require('async'),
-    marcjs = require('../lib/marcjs');
+    marc   = require('../lib/marcjs');
 
 let parsed = nopt(
   {
@@ -22,7 +22,7 @@ let parsed = nopt(
 
 function usage() {
   console.log(
-    "Usage: marcjs -p iso2709|marcxml|mij -f text|iso2709|marcjs|mij -o result file1 file2"
+    "Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marc|mij -o result file1 file2"
   );
   process.exit(1);
 }
@@ -33,13 +33,12 @@ parsed.formater = parsed.formater || 'text';
 
 let output = parsed.output ? fs.createWriteStream(parsed.output)
                            : process.stdout;
-let writer = marcjs.getWriter(output, parsed.formater);
+let writer = marc.Record.getWritable(output, parsed.formater);
 let tasks = [];
 let addTask = function(input) {
   tasks.push(function(callback) {
-    let reader = marcjs.getReadable(input, parsed.parser);
-    reader.on('data', function(record) { writer._write(record, null, callback); });
-    reader.on('end', function() { callback(null); });
+    let reader = marc.Record.getReadable(input, parsed.parser);
+    reader.pipe(writer);
   });
 };
 if (parsed.argv.remain.length > 0) {
@@ -49,4 +48,4 @@ if (parsed.argv.remain.length > 0) {
 } else {
   addTask(process.stdin);
 }
-async.series(tasks, function() { writer.end(); });
+async.series(tasks);
