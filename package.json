@@ -22,6 +22,7 @@
   "bugs": {
     "url": "https://github.com/fredericd/marcjs/issues"
   },
+  "licence": "See license in LICENSE-MIT",
   "licenses": [
     {
       "type": "MIT",
