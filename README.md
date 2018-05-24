@@ -173,6 +173,7 @@ The record object has several methods:
   * as()
   * get()
   * match()
+  * delete()
 
 ### append()
 
@@ -208,24 +209,18 @@ console.log(record.as('mij'));
 console.log(record.as('marcxml'));
 ```
 
-### getReadable(stream, format) 
+### getStream(stream, format) 
 
 Returns a readable stream for specific serialisation format. Available format: iso2709,
-marcxml, mij.
+marcxml, mij, Text, Json.
 
 Example:
 
 ```javascript
-let marc = require('marcjs');
-let readable = marc.Record.getReadable(process.stdin, 'marcxml');
-let writable = marc.Record.getWritable(process.stdout, 'text');
+const { Record } = require('marcjs');
+let readable = Record.getStream(process.stdin, 'marcxml');
+let writable = Record.getStream(process.stdout, 'text');
 ```
-
-### getWritable(stream, format)
-
-Returns a writer for a specific serialisation format: iso2709, marcxml, json,
-text, mij.
-
 
 ## marcjs classes
 
