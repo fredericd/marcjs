@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
   "description": "MARC record node.js library",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
@@ -34,14 +34,16 @@
     "node": ">= 6.0.0"
   },
   "scripts": {
-    "test": "grunt mochaTest"
+    "test": "mocha"
   },
   "bin": {
     "marcjs": "bin/marcjs"
   },
   "dependencies": {
-    "libxmljs": "^0.18.0",
-    "nopt": "~2.1.0"
+    "libxmljs": "^0.18.8",
+    "ngram-fingerprint": "^1.0.0",
+    "nopt": "~2.1.0",
+    "tape": "^4.9.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

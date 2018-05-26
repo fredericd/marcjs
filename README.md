@@ -18,29 +18,24 @@ This script reads an ISO2709 file, adds a field to each record, and writes each 
 an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
-const marc = require('marcjs'),
+const MARC = require('marcjs'),
       fs   = require('fs');
 
-let reader = new marc.Iso2709Reader(fs.createReadStream('bib.mrc'));
-let writers = [
-    new marc.Marcxml(fs.createWriteStream('bib-edited.xml')),
-    new marc.Iso2709(fs.createWriteStream('bib-edited.mrc')),
-    new marc.Json(fs.createWriteStream('bib-edited.json')),
-    new marc.Text(fs.createWriteStream('bib-edited.txt'))
-];
-let trans = new marc.Transform(record => {
+let reader = MARC.stream(fs.createReadStream('bib.mrc'),'Iso2709');
+let writers = ['marcxml','iso2709','json','text']
+  .map(type => MARC.stream(fs.createWriteStream('bib-edited.'+type),type));
+let trans = MARC.transform(record => {
   record.fields = record.fields.filter( field => field[0][0] !== '6' && field[0][0] !== '8' );
   record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2018-05-21' ] );
 });
-
 reader.on('data', record => {
   writers.forEach(writer => writer.write(record) );
 });
-var intervalId = setInterval(() => { console.log(reader.count); }, 100);
+var tick = setInterval(() => { console.log(reader.count); }, 100);
 reader.on('end', () => {
     writers.forEach(writer => writer.end());
-    console.log("Number of processed biblio record: " + reader.count);
-    clearInterval(intervalId);
+    console.log("Number of processed biblio records: " + reader.count);
+    clearInterval(tick);
 });
 ```
 
@@ -174,6 +169,8 @@ The record object has several methods:
   * get()
   * match()
   * delete()
+  * stream()
+  * transform()
 
 ### append()
 
@@ -201,30 +198,30 @@ Return a string representation of the record, in a specific format given as meth
 Example:
 
 ```javascript
-let marc = require('marcjs');
-let record = New marc.Record();
+let MARC = require('marcjs');
+let record = new MARC();
 record.append(['245', ' 1', 'a', 'MARC history:', 'b', 'to the end'], ['100', '  ', 'a', 'Fredo']);
 console.log(record.as('text'));
 console.log(record.as('mij'));
 console.log(record.as('marcxml'));
 ```
 
-### getStream(stream, format) 
+### stream(stream, format) 
 
-Returns a readable stream for specific serialisation format. Available format: iso2709,
-marcxml, mij, Text, Json.
+Returns a readable/writable/duplex stream for specific serialisation format.
+Available format: iso2709, marcxml, mij, Text, Json.
 
 Example:
 
 ```javascript
-const { Record } = require('marcjs');
-let readable = Record.getStream(process.stdin, 'marcxml');
-let writable = Record.getStream(process.stdout, 'text');
+const MARC = require('marcjs');
+let readable = MARC.stream(process.stdin, 'marcxml');
+let writable = MARC.stream(process.stdout, 'text');
 ```
 
 ## marcjs classes
 
-The module exports several classes:
+The module return several classes via stream() and transorm() methods:
 
   * ISO2709 — Duplex stream
   * Marcxml — Duplex stream
@@ -232,27 +229,6 @@ The module exports several classes:
   * Json — Writable stream
   * Mij — Duplex stream
   * Transform — Transform stream
-
-### Iso2709
-
-To read/write ISO2709 files. It's a duplex stream.
-
-It has two class methods to parse/serialize biblio Record objet from/to Iso2709 :
-
-  * Iso2709.format(record) — equivalent to `record.as('iso2709')`
-  * Iso2709.parse(raw)
-
-For example:
-
-```JavaScript
-let marc = require('marcjs');
-let record = New marc.Record();
-record.append(['245', ' 1', 'a', 'MARC history:', 'b', 'to the end'], ['100', '  ', 'a', 'Fredo']);
-let raw = marc.Record.format(record);
-console.log(raw);
-let rec = marc.Record.parse(raw);
-// Here rec = record
-```
 
 ## Release History
 

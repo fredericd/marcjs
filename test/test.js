@@ -2,15 +2,19 @@
 
 let should = require('should'),
     fs     = require('fs'),
-    m      = require('../lib/marcjs.js');
+    MARC   = require('../lib/marcjs');
 
-describe('Record', function() {
-  let record = new m.Record();
+describe('MARC', function() {
+  let record = new MARC();
   it('instantiate a new object', function() {
     record.should.be.instanceof(Object);
   });
   it('has standard properties', function() {
-    record.should.have.properties(['leader', 'fields', 'as', 'append', 'get', 'match']);
+    record.should.have.properties(['leader','fields','as','append','delete','get','match']);
+    record.fields.length.should.empty;
+  });
+  it('has class methods', function() {
+    MARC.should.have.properties(['stream']);
     record.fields.length.should.empty;
   });
   it('append a field', function(){
@@ -20,33 +24,17 @@ describe('Record', function() {
     record.fields[0][3].should.equal('My title');
   });
 });
-describe('Iso2709ReadStream', function() {
+describe('Iso2709 read stream', function() {
   let stream, reader;
   before(function () {
     stream = fs.createReadStream('test/data/bib-one.mrc');
   });
   it('first read record', function(done) {
-    reader = new m.Iso2709(stream);
+    reader = MARC.stream(stream,'Iso2709');
     reader.should.have.property('_read');
     reader.should.have.property('_write');
-    //reader.should.have.property('parse');
-    //reader.should.have.property('format');
     reader.on('data', function(record) {
       record.leader.should.equal('00711nam  2200217   4500');
-    });
-    reader.on('end', function () { done(); });
-  });
-});
-
-describe('Issue #16', function() {
-  let stream, reader;
-  before(function () {
-    stream = fs.createReadStream('test/data/error.mrc');
-  });
-  it('reads record without error', function(done) {
-    reader = new m.Iso2709(stream);
-    reader.on('data', function(record) {
-      record.leader;
     });
     reader.on('end', function () { done(); });
   });
@@ -77,7 +65,7 @@ describe('MiJ', function () {
   };
   before(function (done) {
     let stream = fs.createReadStream('test/data/bib-one.mrc');
-    reader = new m.Iso2709(stream);
+    reader = MARC.stream(stream, 'Iso2709');
     reader.on('data', (rec) => { record = JSON.parse(rec.as('MiJ')) });
     reader.on('end', function () { done(); });
   });

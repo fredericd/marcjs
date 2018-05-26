@@ -3,7 +3,7 @@
 let nopt   = require('nopt'),
     fs     = require('fs'),
     async  = require('async'),
-    marc   = require('../lib/marcjs');
+    MARC   = require('../lib/marcjs');
 
 let parsed = nopt(
   {
@@ -33,11 +33,11 @@ parsed.formater = parsed.formater || 'text';
 
 let output = parsed.output ? fs.createWriteStream(parsed.output)
                            : process.stdout;
-let writer = marc.Record.getWritable(output, parsed.formater);
+let writer = MARC.stream(output, parsed.formater);
 let tasks = [];
 let addTask = function(input) {
   tasks.push(function(callback) {
-    let reader = marc.Record.getReadable(input, parsed.parser);
+    let reader = MARC.stream(input, parsed.parser);
     reader.pipe(writer);
   });
 };
