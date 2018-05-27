@@ -8,8 +8,8 @@ MARC record node.js library
 Install the module with: `npm install marcjs`
 
 ```javascript
-var marc = require('marcjs');
-marc.Record();
+const MARC = require('marcjs');
+let record = new MARC();
 ```
 
 ## Usage
@@ -160,19 +160,30 @@ Example:
 }
 ```
 
-## Record object
+## MARC record object
 
-The record object has several methods:
+The MARC record object has several methods:
 
   * append()
   * as()
   * get()
   * match()
   * delete()
+
+The class has several methods:
+
   * stream()
   * transform()
+  * parse()
 
-### append()
+The has two properties :
+
+  * parser
+  * formater
+
+### Objects methods
+
+#### append()
 
 Append an array of fields to the record. Fields are inserted in order, based on
 the tag of the first field. Returns the record itself, so chaining is possible.
@@ -185,7 +196,7 @@ record
     .append(['801', '  ', 'a', 'MYLIB']);
 ```
 
-### as(format)
+#### as(format)
 
 Return a string representation of the record, in a specific format given as method parameter:
 
@@ -206,7 +217,9 @@ console.log(record.as('mij'));
 console.log(record.as('marcxml'));
 ```
 
-### stream(stream, format) 
+### Class methods
+
+#### stream(stream, format) 
 
 Returns a readable/writable/duplex stream for specific serialisation format.
 Available format: iso2709, marcxml, mij, Text, Json.
@@ -219,9 +232,36 @@ let readable = MARC.stream(process.stdin, 'marcxml');
 let writable = MARC.stream(process.stdout, 'text');
 ```
 
+#### transform(function)
+
+Returns a Transform stream transforming a MARC record.
+
+Example:
+
+```javascript
+const deleteSomeFields = MARC.transform(record => {
+  record.delete('8..');
+  record.delete('6..');
+});
+... get a record
+record = deleteSomeFields(record);
+```
+
+#### parse(raw,type)
+
+Return a MARC record parsed from a given format: Iso2709, Marcxml, or MiJ.
+
+Example:
+
+```javascript
+const raw = '... a iso2709 string';
+let record = MARC.parse(raw,'iso279');
+```
+
+
 ## marcjs classes
 
-The module return several classes via stream() and transorm() methods:
+The module returns several classes via stream() and transorm() methods:
 
   * ISO2709 — Duplex stream
   * Marcxml — Duplex stream

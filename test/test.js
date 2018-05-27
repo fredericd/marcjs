@@ -1,8 +1,8 @@
 'use strict';
 
-let should = require('should'),
-    fs     = require('fs'),
-    MARC   = require('../lib/marcjs');
+const should = require('should'),
+      fs     = require('fs'),
+      MARC   = require('../lib/marcjs');
 
 describe('MARC', function() {
   let record = new MARC();
@@ -11,19 +11,64 @@ describe('MARC', function() {
   });
   it('has standard properties', function() {
     record.should.have.properties(['leader','fields','as','append','delete','get','match']);
-    record.fields.length.should.empty;
   });
   it('has class methods', function() {
     MARC.should.have.properties(['stream']);
-    record.fields.length.should.empty;
   });
-  it('append a field', function(){
-    record.append(['200', '  ', 'a', 'My title']);
+  it('append a field', function() {
+    record.append(['200', '1 ', 'a', 'My title']);
     record.fields[0][0].should.equal('200');
     record.fields[0][2].should.equal('a');
     record.fields[0][3].should.equal('My title');
   });
+  it('get field', function() {
+    let f = record.get('200');
+    f.length.should.equal(1);
+    f[0].tag.should.equal('200');
+    f[0].ind1.should.equal('1');
+    f[0].ind2.should.equal(' ');
+    f[0].subf.length.should.equal(1);
+    f[0].subf[0][0].should.equal('a');
+    f[0].subf[0][1].should.equal('My title');
+  });
+  it('delete field', () => {
+    record.delete('200');
+    let f = record.get('200');
+    f.length.should.equal(0);
+  });
 });
+
+describe('Parse Marcxml', function() {
+  const raw = `<record>
+<leader>00343nx  a2200109#  450 </leader>
+<controlfield tag="001">5a09c46421c0c8f86dd05a99</controlfield>
+<datafield tag="200" ind1=" " ind2="1">
+  <subfield code="a">Fitzgerald</subfield>
+  <subfield code="b">F. Scott</subfield>
+  <subfield code="f">1896-1940.</subfield>
+  <subfield code="g">(Francis Scott),</subfield>
+</datafield>
+</record>`;
+  let record = MARC.parse(raw, 'marcxml');
+  it('parse raw marcxml and get a MARC object', () => {
+    record.should.be.instanceof(MARC);
+  });
+  it('leader OK', () => {
+    record.leader.should.equal('00343nx  a2200109#  450 ');
+  });
+  it('2 fields', () => record.fields.length.should.equal(2));
+  let f1 = record.fields[0];
+  it('field 1 is a controlfield', () => f1.length.should.equal(2));
+  it('field 1 tag is 001', () => f1[0].should.equal('001'));
+  it('field 1 value OK', () => { f1[1].should.equal('5a09c46421c0c8f86dd05a99') });
+  let f2 = record.fields[1];
+  it('field 2 is a data field', () => f2.length.should.equal(10));
+  it('field 2 tag is 200', () => f2[0].should.equal('200'));
+  it('field 2 indicator OK', () => f2[1].should.equal(' 1'));
+  it('field 2 first subfield letter is $a', () => f2[2].should.equal('a'));
+  it('field 2 first value OK', () => f2[3].should.equal('Fitzgerald'));
+});
+
 describe('Iso2709 read stream', function() {
   let stream, reader;
   before(function () {
