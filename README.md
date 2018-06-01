@@ -169,6 +169,8 @@ The MARC record object has several methods:
   * get()
   * match()
   * delete()
+  * clone()
+  * mij()
 
 The class has several methods:
 
@@ -176,12 +178,12 @@ The class has several methods:
   * transform()
   * parse()
 
-The has two properties :
+The class has two properties :
 
   * parser
   * formater
 
-### Objects methods
+### Object methods
 
 #### append()
 
@@ -216,6 +218,14 @@ console.log(record.as('text'));
 console.log(record.as('mij'));
 console.log(record.as('marcxml'));
 ```
+
+#### clone()
+
+Return a MARC new record, clone of the record.
+
+#### mij()
+
+Return a MARC-in-JSON object representing the MARC record. 
 
 ### Class methods
 
