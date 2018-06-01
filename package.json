@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
   "description": "MARC record node.js library",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
@@ -34,18 +34,21 @@
     "node": ">= 6.0.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "nyc --reporter=html --reporter=text mocha"
   },
   "bin": {
     "marcjs": "bin/marcjs"
   },
   "dependencies": {
     "libxmljs": "^0.18.8",
+    "mysql": "^2.15.0",
     "ngram-fingerprint": "^1.0.0",
-    "nopt": "~2.1.0"
+    "nopt": "~2.1.0",
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
-    "should": "^2.0.2",
-    "mocha":"^5.2.0"
+    "mocha": "^5.2.0",
+    "nyc": "^11.8.0",
+    "should": "^2.0.2"
   }
 }
