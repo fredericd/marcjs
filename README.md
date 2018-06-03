@@ -232,7 +232,8 @@ Return a MARC-in-JSON object representing the MARC record.
 #### stream(stream, format) 
 
 Returns a readable/writable/duplex stream for specific serialisation format.
-Available format: iso2709, marcxml, mij, Text, Json.
+Available format: iso2709, marcxml, mij, Text, Json. The stream has a
+property `count` containing the number of record written/readen.
 
 Example:
 
