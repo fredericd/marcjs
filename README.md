@@ -29,6 +29,8 @@ let trans = MARC.transform(record => {
   record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2018-05-21' ] );
 });
 reader.on('data', record => {
+  trans.write(record);
+  record = trans.read(record);
   writers.forEach(writer => writer.write(record) );
 });
 var tick = setInterval(() => { console.log(reader.count); }, 100);
