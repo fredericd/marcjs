@@ -1,9 +1,9 @@
 'use strict';
 
 const should = require('should'),
+      assert = require('assert'),
       fs     = require('fs'),
       MARC   = require('../lib/marcjs');
-
 
 let recordSimple = new MARC();
 recordSimple.leader = '00711nam  2200217   4500';
