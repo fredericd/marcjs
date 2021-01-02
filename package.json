@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
   "description": "MARC record Node.js library",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
@@ -35,7 +35,7 @@
     "marcjs": "bin/marcjs"
   },
   "dependencies": {
-    "libxmljs": "~0.19.7",
+    "libxmljs": "^0.19.7",
     "nopt": "~5.0.0",
     "xml2js": "^0.4.23"
   },

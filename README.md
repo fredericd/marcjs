@@ -281,17 +281,6 @@ const deleteSomeFields = MARC.transform(record => {
 record = deleteSomeFields(record);
 ```
 
-#### parse(raw,type)
-
-Return a MARC record parsed from a given format: Iso2709, Marcxml, or MiJ.
-
-Example:
-
-```javascript
-const raw = '... a iso2709 string';
-let record = MARC.parse(raw,'iso279');
-```
-
 ### Object methods
 
 #### append()
@@ -331,6 +320,30 @@ console.log(record.as('marcxml'));
 #### clone()
 
 Return a MARC new record, clone of the record.
+
+#### delete(match)
+
+Delete all fiels which tag match `match` regular expression. Returns the record
+itself for chaining. For example:
+
+```javascript
+record.delete(/9..|801/);
+```
+
+#### get(match)
+
+Get fields with tag matching a regular expression. Returns an array of fiels in
+MARC-in-JSON format. If you want fields in MARC native format, just to a filter:
+
+```javascript
+const fields = record.fields.filter((field) => field[0].match(/9..|801/));
+```
+
+#### match(match, cb)
+
+```javascript
+record.match(/9..|801/, (field) => {} {
+```
 
 #### mij()
 
@@ -441,8 +454,34 @@ The module returns several classes via stream() and transform()
   * Marcxml — Duplex stream
   * Text — Writable stream
   * Json — Writable stream
-  * Mij — Duplex stream
+  * MiJ — Duplex stream
   * Transform — Transform stream
+
+## CLI marcjs
+
+A command line script **marcjs** allows MARC record files manipulation from
+command line.
+
+The module must be installed globaly: `npm i marcjs -g`.
+
+Usage:
+
+```bash
+Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marc|mij -o result file1 file2
+```
+Default parser is Iso2709 and default formater is Text.
+
+Example:
+
+```
+# Same result: output a text version of bib1.mrc and bib2.mrc file
+marcjs bib1.mrc bib2.mrc
+marcjs -p iso2709 -f text bib1.mrc bib2.mrc
+cat bib1.mrc bib2.txt | marcjs
+
+# Output in MARC-in-JSON in bib1.mij file
+marcjs -f mij -o bib1.mij bib1.mrc
+```
 
 ## License
 
