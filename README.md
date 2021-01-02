@@ -1,6 +1,6 @@
 # marcjs
 
-MARC record node.js library
+MARC record Node.js library
 [![Build Status](https://travis-ci.org/fredericd/marcjs.png?branch=master)](https://travis-ci.org/fredericd/marcjs)
 
 ## Getting Started
@@ -21,7 +21,7 @@ an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 const MARC = require('marcjs');
 const fs = require('fs');
 
-let reader = MARC.stream(fs.createReadStream('bib.mrc'),'Iso2709');
+let reader = MARC.stream(fs.createReadStream('bib.mrc'), 'Iso2709');
 let writers = ['marcxml', 'iso2709', 'json', 'text']
   .map(type => MARC.stream(fs.createWriteStream('bib-edited.'+type),type));
 let trans = MARC.transform(record => {
@@ -38,6 +38,31 @@ reader.on('end', () => {
     writers.forEach(writer => writer.end());
     console.log("Number of processed biblio records: " + reader.count);
     clearInterval(tick);
+});
+```
+
+Same but using `pipe()`:
+
+```javascript
+const MARC = require('marcjs');
+const fs = require('fs');
+
+let reader = MARC.stream(fs.createReadStream('BNF-Livres-01.mrc'), 'Iso2709');
+let trans = MARC.transform((record) => {
+  // Delete 9.. tags and add a 801 field
+  record.fields = record.fields.filter((field) => field[0][0] !== '9');
+  record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2021-01-01' ] );
+});
+const transStream = reader.pipe(trans);
+// Pipe the stream of transformed biblio record to 4 different writers
+['marcxml', 'iso2709', 'json', 'text'].forEach((type) => {
+  const writer = MARC.stream(fs.createWriteStream(`bib-edited.${type}`), type);
+  transStream.pipe(writer);
+});
+var tick = setInterval(() => { console.log(reader.count); }, 100);
+reader.on('end', () => {
+  console.log("Number of processed biblio records: " + reader.count);
+  clearInterval(tick);
 });
 ```
 
@@ -164,7 +189,18 @@ Example:
 
 ## MARC record object
 
-The MARC record object has several methods:
+The class has [two properties](#class-properties):
+
+  * parser
+  * formater
+
+The class has [three methods](#class-methods):
+
+  * stream()
+  * parse()
+  * transform()
+
+The MARC record object has [several methods](object-methods):
 
   * append()
   * as()
@@ -174,16 +210,87 @@ The MARC record object has several methods:
   * clone()
   * mij()
 
-The class has several methods:
+### Class properties
 
-  * stream()
-  * transform()
-  * parse()
+The class has two properties defining the serialization formats that MARC
+module is able to read and write.
 
-The class has two properties :
+* **parser** -- The serialization format that MARC can read: Iso2709,
+Marcxml, and MiJ (MARC-in-JSON).
 
-  * parser
-  * formater
+* **formater** --The serialisation format that MARC can write: Iso2709,
+Marcxml, MiJ, Text, Json.
+
+### Class methods
+
+#### stream(stream, type)
+
+Returns a Readable/Writable stream based on a Node.js stream. Available
+**type** (see above for more info) are:
+
+Returns a readable/writable/duplex stream for specific serialisation format.
+The stream has a property `count` containing the number of record
+written/readen.
+
+* **text** -- Writable.
+* **iso2709** -- Readable/Writable.
+* **marcxml** -- Readable/Writable.
+* **json** -- Writable.
+* **mij** -- Readable/Writable.
+
+Usage:
+
+```javascript
+const iso2709Reader = MARC.stream(process.stdin, 'Iso2709');
+const marcxmlReader = MARC.stream(fs.createReadStream(file), 'Marcxml');
+const textWriter = MARC.stream(fs.stdout, 'Text'); 
+```
+
+### parse(raw, type) {
+
+Parse a **raw** record serialized in **type** format, and returns a MARC record.
+
+For example:
+
+```javascript
+const MARC = require('marcjs');
+const marcxml = `<record>
+<leader>01288nam  2200337   450 </leader>
+<controlfield tag="001">FRBNF345958660000005</controlfield>
+<datafield tag="200" ind1="1" ind2=" ">
+ <subfield code="a">Histoire religieuse du Maine</subfield>
+ <subfield code="b">Texte imprimé</subfield>
+</datafield>
+</record>`;
+const record = MARC.parse(marcxml, 'marcxml');
+```
+
+#### transform(function)
+
+Returns a Transform stream transforming a MARC record. It allows
+chaining reading, multiple transformation, writing, via piping streams.
+
+Example:
+
+```javascript
+const deleteSomeFields = MARC.transform(record => {
+  record.delete('8..');
+  record.delete('6..');
+});
+... get a record
+record = deleteSomeFields(record);
+```
+
+#### parse(raw,type)
+
+Return a MARC record parsed from a given format: Iso2709, Marcxml, or MiJ.
+
+Example:
+
+```javascript
+const raw = '... a iso2709 string';
+let record = MARC.parse(raw,'iso279');
+```
 
 ### Object methods
 
@@ -325,52 +432,10 @@ Return a MARC-in-JSON object representing the MARC record. Example:
 }
 ```
 
-### Class methods
-
-#### stream(stream, format) 
-
-Returns a readable/writable/duplex stream for specific serialisation format.
-Available format: iso2709, marcxml, mij, Text, Json. The stream has a
-property `count` containing the number of record written/readen.
-
-Example:
-
-```javascript
-const MARC = require('marcjs');
-let readable = MARC.stream(process.stdin, 'marcxml');
-let writable = MARC.stream(process.stdout, 'text');
-```
-
-#### transform(function)
-
-Returns a Transform stream transforming a MARC record.
-
-Example:
-
-```javascript
-const deleteSomeFields = MARC.transform(record => {
-  record.delete('8..');
-  record.delete('6..');
-});
-... get a record
-record = deleteSomeFields(record);
-```
-
-#### parse(raw,type)
-
-Return a MARC record parsed from a given format: Iso2709, Marcxml, or MiJ.
-
-Example:
-
-```javascript
-const raw = '... a iso2709 string';
-let record = MARC.parse(raw,'iso279');
-```
-
-
 ## marcjs classes
 
-The module returns several classes via stream() and transorm() methods:
+The module returns several classes via stream() and transform()
+[class methods](class-methods):
 
   * ISO2709 — Duplex stream
   * Marcxml — Duplex stream
@@ -379,8 +444,7 @@ The module returns several classes via stream() and transorm() methods:
   * Mij — Duplex stream
   * Transform — Transform stream
 
-## Release History
-
 ## License
-Copyright (c) 2018 Frédéric Demians
+
+Copyright (c) 2020 Frédéric Demians
 Licensed under the MIT license.

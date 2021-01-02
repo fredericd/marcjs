@@ -2,7 +2,6 @@
 
 const nopt = require('nopt');
 const fs = require('fs');
-const async = require('async');
 const MARC = require('../lib/marcjs');
 
 const parsed = nopt(
@@ -27,6 +26,7 @@ function usage() {
   );
   process.exit(1);
 }
+
 if (parsed.help) { usage(); }
 
 parsed.parser = parsed.parser || 'iso2709';
@@ -35,18 +35,21 @@ parsed.formater = parsed.formater || 'text';
 const output = parsed.output ? fs.createWriteStream(parsed.output)
   : process.stdout;
 const writer = MARC.stream(output, parsed.formater);
-const tasks = [];
-function addTask(input) {
-  tasks.push(() => {
-    const reader = MARC.stream(input, parsed.parser);
-    reader.pipe(writer);
-  });
-}
-if (parsed.argv.remain.length > 0) {
-  parsed.argv.remain.forEach((file) => {
-    addTask(fs.createReadStream(file));
-  });
+let reader;
+const consumeMarcStream = (stream) => {
+  reader = MARC.stream(stream, parsed.parser);
+  reader.pipe(writer, { end: false });
+};
+const files = parsed.argv.remain;
+if (files.length > 0) {
+  const readNextFile = () => {
+    if (files.length) {
+      const file = files.shift();
+      consumeMarcStream(fs.createReadStream(file));
+      reader.on('end', readNextFile);
+    }
+  };
+  readNextFile();
 } else {
-  addTask(process.stdin);
+  consumeMarcStream(process.stdin);
 }
-async.series(tasks);

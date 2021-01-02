@@ -101,7 +101,7 @@ describe('Text', () => {
       const record = recordSimple.clone();
       const txt = record.as('Text');
       const expected = `00711nam  2200217   4500
-001   1234
+001 1234
 245    $a My life : $b long story short`;
       txt.should.equal(expected);
     });
@@ -122,11 +122,11 @@ describe('Text', () => {
     it('text file is valid', () => {
       const content = fs.readFileSync(file, 'utf8');
       const rawfile = `00711nam  2200217   4500
-001   1234
+001 1234
 245    $a My life : $b long story short
 
 00711nam  2200217   4500
-001   9876
+001 9876
 245    $a My life : $b long story short
 `;
       content.should.equal(rawfile);
