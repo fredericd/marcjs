@@ -18,20 +18,20 @@ This script reads an ISO2709 file, adds a field to each record, and writes each 
 an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
-const MARC = require('marcjs'),
-      fs   = require('fs');
+const MARC = require('marcjs');
+const fs = require('fs');
 
 let reader = MARC.stream(fs.createReadStream('bib.mrc'),'Iso2709');
-let writers = ['marcxml','iso2709','json','text']
+let writers = ['marcxml', 'iso2709', 'json', 'text']
   .map(type => MARC.stream(fs.createWriteStream('bib-edited.'+type),type));
 let trans = MARC.transform(record => {
-  record.fields = record.fields.filter( field => field[0][0] !== '6' && field[0][0] !== '8' );
-  record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2018-05-21' ] );
+  record.fields = record.fields.filter((field) => field[0][0] !== '6' && field[0][0] !== '8' );
+  record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2021-01-01' ] );
 });
-reader.on('data', record => {
+reader.on('data', (record) => {
   trans.write(record);
   record = trans.read(record);
-  writers.forEach(writer => writer.write(record) );
+  writers.forEach((writer) => writer.write(record) );
 });
 var tick = setInterval(() => { console.log(reader.count); }, 100);
 reader.on('end', () => {
@@ -195,9 +195,9 @@ For example:
 
 ```javascript
 record
-    .append(['952', '  ', 'a', 'MAIN', 'b', 'ANNEX', 'f', '12456', 'i', 'BOOK'],
-            ['952', '  ', 'a', 'MAIN', 'b', 'MAIN', 'f', '45626', 'i', 'DVD'])
-    .append(['801', '  ', 'a', 'MYLIB']);
+  .append(['952', '  ', 'a', 'MAIN', 'b', 'ANNEX', 'f', '12456', 'i', 'BOOK'],
+          ['952', '  ', 'a', 'MAIN', 'b', 'MAIN', 'f', '45626', 'i', 'DVD'])
+  .append(['801', '  ', 'a', 'MYLIB']);
 ```
 
 #### as(format)
@@ -208,7 +208,7 @@ Return a string representation of the record, in a specific format given as meth
   * **iso2709** -- Legacy ISO2709 format.
   * **marcxml** -- Standard MARCXML.
   * **json** -- JSON stringified version of the native record object.
-  * **mij** -- MARC-in-JSON. Alternative serialization format, as described here: http://dilettantes.code4lib.org/blog/2010/09/a-proposal-to-serialize-marc-in-json/ 
+  * **mij** -- MARC-in-JSON. Alternative serialization format, as described here: https://github.com/marc4j/marc4j/wiki/MARC-in-JSON-Description 
 
 Example:
 
@@ -227,7 +227,103 @@ Return a MARC new record, clone of the record.
 
 #### mij()
 
-Return a MARC-in-JSON object representing the MARC record. 
+Return a MARC-in-JSON object representing the MARC record. Example:
+
+```json
+{
+  "leader": "00705cam  2200241   450 ",
+  "fields": [
+    {
+      "001": "FRBNF465957890000009"
+    },
+    {
+      "003": "http://catalogue.bnf.fr/ark:/12148/cb46595789r"
+    },
+    {
+      "010": {
+        "subfields": [
+          {
+            "b": "Br."
+          }
+        ],
+        "ind1": " ",
+        "ind2": " "
+      }
+    },
+    {
+      "100": {
+        "subfields": [
+          {
+            "a": "20200814g2019    m  y0frey50      ba"
+          }
+        ],
+        "ind1": " ",
+        "ind2": " "
+      }
+    },
+    {
+      "200": {
+        "subfields": [
+          {
+            "a": "Troie"
+          },
+          {
+            "b": "Texte imprimé"
+          },
+          {
+            "f": "David Gemmell"
+          }
+        ],
+        "ind1": "1",
+        "ind2": " "
+      }
+    },
+    {
+      "210": {
+        "subfields": [
+          {
+            "a": "Paris"
+          },
+          {
+            "c": "Bragelonne"
+          },
+          {
+            "d": "DL 2016-"
+          }
+        ],
+        "ind1": " ",
+        "ind2": " "
+      }
+    },
+    {
+      "700": {
+        "subfields": [
+          {
+            "3": "13548837"
+          },
+          {
+            "o": "ISNI0000000121449147"
+          },
+          {
+            "a": "Gemmell"
+          },
+          {
+            "b": "David"
+          },
+          {
+            "f": "1948-2006"
+          },
+          {
+            "4": "070"
+          }
+        ],
+        "ind1": " ",
+        "ind2": "|"
+      }
+    }
+  ]
+}
+```
 
 ### Class methods
 

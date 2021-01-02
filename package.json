@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
   "description": "MARC record Node.js library",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
@@ -22,13 +22,14 @@
   "bugs": {
     "url": "https://github.com/fredericd/marcjs/issues"
   },
-  "license": "MIT-License",
+  "license": "MIT",
   "main": "lib/marcjs",
   "engines": {
     "node": ">= 12.0.0"
   },
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha"
+    "test": "mocha",
+    "coverage": "nyc --reporter=html --reporter=text mocha"
   },
   "bin": {
     "marcjs": "bin/marcjs"
