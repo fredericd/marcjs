@@ -1,7 +1,9 @@
 # marcjs
 
-MARC record Node.js library
 [![Build Status](https://travis-ci.org/fredericd/marcjs.png?branch=master)](https://travis-ci.org/fredericd/marcjs)
+[![NPM version](https://img.shields.io/npm/v/marcjs.svg)](https://www.npmjs.com/package/marcjs)
+
+MARC record Node.js library
 
 ## Getting Started
 
@@ -101,9 +103,6 @@ console.log(knownParser); // Display Marc format that marcjs can parse
 
 #### stream(stream, type)
 
-Returns a Readable/Writable stream based on a Node.js stream. Available
-**type** (see above for more info) are:
-
 Returns a readable/writable/duplex stream for specific serialisation format.
 The stream has a property `count` containing the number of record
 written/readen.
@@ -117,9 +116,37 @@ written/readen.
 Usage:
 
 ```javascript
-const iso2709Reader = MARC.stream(process.stdin, 'Iso2709');
-const marcxmlReader = MARC.stream(fs.createReadStream(file), 'Marcxml');
-const textWriter = MARC.stream(fs.stdout, 'Text'); 
+const iso2709Reader = Marc.stream(process.stdin, 'Iso2709');
+const marcxmlReader = Marc.stream(fs.createReadStream(file), 'Marcxml');
+const textWriter = Marc.stream(fs.stdout, 'Text'); 
+```
+
+Read a ISO2709 file and display its text version to the screen:
+
+```javascript
+const { Marc } = require('marcjs');
+const reader = Marc.stream(fs.createReadStream('bib.mrc', 'Iso2709'));
+const writer = Marc.stream(fs.stdout, 'Text');
+reader.pipe(writer);
+```
+
+Oneliner version:
+
+```javascript
+const { Marc } = require('marcjs');
+Marc
+  .stream(fs.createReadStream('bib.mrc', 'Iso2709'))
+  .pipe(Marc.stream(fs.stdout, 'Text'));
+```
+
+Version with marcjs Readable/Writable/Duplex Node.js classes:
+
+```javascript
+const { Iso2709, Text } = require('marcjs');
+const reader = new Iso2709(fs.createReadStream('bib.mrc'));
+const writer = new Text(fs.stdout, 'Text');
+reader.pipe(writer);
+
 ```
 
 ### parse(raw, type) {
@@ -462,6 +489,22 @@ Return a MARC-in-JSON object representing the MARC record. Example:
   ]
 }
 ```
+
+## Other classes
+
+Marc object return other classes than Marc and  Record classes. They can be
+invoqued directly.
+
+* **Iso2709** — Duplex stream reading/writing ISO2709 serialized records.
+
+* **Marcxml** — Duplex stream reading/writing Marcxml serialized records.
+
+* **MiJ** — Duplex stream reading/writing MARC-in-JSON serialized records.
+
+* **Text** — Writable stream writing Text serialized records.
+
+* **Json** — Writable stream writing Json serialized records. It's the
+marcjs native serialization format.
 
 ## CLI marcjs
 
