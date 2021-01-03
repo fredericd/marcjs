@@ -8,8 +8,11 @@ MARC record Node.js library
 Install the module with: `npm install marcjs`
 
 ```javascript
-const MARC = require('marcjs');
-let record = new MARC();
+const { Marc, Record } = require('marcjs');
+let record = new Record();
+record.append(['245', ' 1', 'a', 'Middlemarch /', 'b', 'Georges Eliot.']);
+console.log(record.as('Text'));
+console.log(Marc.format(record, 'Marcxml'));
 ```
 
 ## Usage
@@ -18,13 +21,13 @@ This script reads an ISO2709 file, adds a field to each record, and writes each 
 an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
-const MARC = require('marcjs');
+const { Marc } = require('marcjs');
 const fs = require('fs');
 
-let reader = MARC.stream(fs.createReadStream('bib.mrc'), 'Iso2709');
+let reader = Marc.stream(fs.createReadStream('bib.mrc'), 'Iso2709');
 let writers = ['marcxml', 'iso2709', 'json', 'text']
-  .map(type => MARC.stream(fs.createWriteStream('bib-edited.'+type),type));
-let trans = MARC.transform(record => {
+  .map(type => Marc.stream(fs.createWriteStream('bib-edited.'+type),type));
+let trans = Marc.transform(record => {
   record.fields = record.fields.filter((field) => field[0][0] !== '6' && field[0][0] !== '8' );
   record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2021-01-01' ] );
 });
@@ -44,11 +47,11 @@ reader.on('end', () => {
 Same but using `pipe()`:
 
 ```javascript
-const MARC = require('marcjs');
+const { MARC } = require('marcjs');
 const fs = require('fs');
 
-let reader = MARC.stream(fs.createReadStream('BNF-Livres-01.mrc'), 'Iso2709');
-let trans = MARC.transform((record) => {
+let reader = Marc.stream(fs.createReadStream('BNF-Livres-01.mrc'), 'Iso2709');
+let trans = Marc.transform((record) => {
   // Delete 9.. tags and add a 801 field
   record.fields = record.fields.filter((field) => field[0][0] !== '9');
   record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2021-01-01' ] );
@@ -66,10 +69,115 @@ reader.on('end', () => {
 });
 ```
 
-## Javascript MARC record representation
+## Marc object
+
+The Marc object has [two properties](#marc-attributes):
+
+  * parser
+  * formater
+
+Marc has [three functions](#marc-functions):
+
+  * stream()
+  * parse()
+  * transform()
+
+### Marc attributes
+
+The class has two properties defining the serialization formats that MARC
+module is able to read and write.
+
+* **parser** -- The serialization format that MARC can read: Iso2709,
+Marcxml, and MiJ (MARC-in-JSON).
+* **formater** --The serialisation format that MARC can write: Iso2709,
+Marcxml, MiJ, Text, Json.
+
+```javascript
+const knownParser = Object.keys(Marc.parser);
+console.log(knownParser); // Display Marc format that marcjs can parse
+```
+
+### Marc functions
+
+#### stream(stream, type)
+
+Returns a Readable/Writable stream based on a Node.js stream. Available
+**type** (see above for more info) are:
+
+Returns a readable/writable/duplex stream for specific serialisation format.
+The stream has a property `count` containing the number of record
+written/readen.
+
+* **text** -- Writable.
+* **iso2709** -- Readable/Writable.
+* **marcxml** -- Readable/Writable.
+* **json** -- Writable.
+* **mij** -- Readable/Writable.
+
+Usage:
+
+```javascript
+const iso2709Reader = MARC.stream(process.stdin, 'Iso2709');
+const marcxmlReader = MARC.stream(fs.createReadStream(file), 'Marcxml');
+const textWriter = MARC.stream(fs.stdout, 'Text'); 
+```
+
+### parse(raw, type) {
+
+Parse a **raw** record serialized in **type** format, and returns a MARC record.
+
+For example:
+
+```javascript
+const MARC = require('marcjs');
+const marcxml = `<record>
+<leader>01288nam  2200337   450 </leader>
+<controlfield tag="001">FRBNF345958660000005</controlfield>
+<datafield tag="200" ind1="1" ind2=" ">
+ <subfield code="a">Histoire religieuse du Maine</subfield>
+ <subfield code="b">Texte imprimé</subfield>
+</datafield>
+</record>`;
+const record = MARC.parse(marcxml, 'marcxml');
+```
+
+#### transform(function)
+
+Returns a Transform stream transforming a MARC record. It allows
+chaining reading, multiple transformation, writing, via piping streams.
+
+Example:
+
+```javascript
+const deleteSomeFields = Marc.transform(record => {
+  record.delete('8..');
+  record.delete('6..');
+});
+... get a record
+record = deleteSomeFields(record);
+```
+
+## Class Record
+
+The Record object has [two properties](record-properties) :
+
+* leader
+* fields
+
+And Record has [several methods](record-methods):
+
+* append()
+* as()
+* get()
+* match()
+* delete()
+* clone()
+* mij()
+
+### Record properties
 
 The library manipulates MARC biblio records as native Javascript objects which
-have two properties: `leader` and `fields`.
+have two properties: `leader` and `fields`. Each record is a `Record` object.
 
 Example:
 
@@ -187,101 +295,7 @@ Example:
 }
 ```
 
-## MARC record object
-
-The class has [two properties](#class-properties):
-
-  * parser
-  * formater
-
-The class has [three methods](#class-methods):
-
-  * stream()
-  * parse()
-  * transform()
-
-The MARC record object has [several methods](object-methods):
-
-  * append()
-  * as()
-  * get()
-  * match()
-  * delete()
-  * clone()
-  * mij()
-
-### Class properties
-
-The class has two properties defining the serialization formats that MARC
-module is able to read and write.
-
-* **parser** -- The serialization format that MARC can read: Iso2709,
-Marcxml, and MiJ (MARC-in-JSON).
-
-* **formater** --The serialisation format that MARC can write: Iso2709,
-Marcxml, MiJ, Text, Json.
-
-### Class methods
-
-#### stream(stream, type)
-
-Returns a Readable/Writable stream based on a Node.js stream. Available
-**type** (see above for more info) are:
-
-Returns a readable/writable/duplex stream for specific serialisation format.
-The stream has a property `count` containing the number of record
-written/readen.
-
-* **text** -- Writable.
-* **iso2709** -- Readable/Writable.
-* **marcxml** -- Readable/Writable.
-* **json** -- Writable.
-* **mij** -- Readable/Writable.
-
-Usage:
-
-```javascript
-const iso2709Reader = MARC.stream(process.stdin, 'Iso2709');
-const marcxmlReader = MARC.stream(fs.createReadStream(file), 'Marcxml');
-const textWriter = MARC.stream(fs.stdout, 'Text'); 
-```
-
-### parse(raw, type) {
-
-Parse a **raw** record serialized in **type** format, and returns a MARC record.
-
-For example:
-
-```javascript
-const MARC = require('marcjs');
-const marcxml = `<record>
-<leader>01288nam  2200337   450 </leader>
-<controlfield tag="001">FRBNF345958660000005</controlfield>
-<datafield tag="200" ind1="1" ind2=" ">
- <subfield code="a">Histoire religieuse du Maine</subfield>
- <subfield code="b">Texte imprimé</subfield>
-</datafield>
-</record>`;
-const record = MARC.parse(marcxml, 'marcxml');
-```
-
-#### transform(function)
-
-Returns a Transform stream transforming a MARC record. It allows
-chaining reading, multiple transformation, writing, via piping streams.
-
-Example:
-
-```javascript
-const deleteSomeFields = MARC.transform(record => {
-  record.delete('8..');
-  record.delete('6..');
-});
-... get a record
-record = deleteSomeFields(record);
-```
-
-### Object methods
+### Record methods
 
 #### append()
 
@@ -309,8 +323,8 @@ Return a string representation of the record, in a specific format given as meth
 Example:
 
 ```javascript
-let MARC = require('marcjs');
-let record = new MARC();
+let { Record } = require('marcjs');
+let record = new Record();
 record.append(['245', ' 1', 'a', 'MARC history:', 'b', 'to the end'], ['100', '  ', 'a', 'Fredo']);
 console.log(record.as('text'));
 console.log(record.as('mij'));
@@ -319,7 +333,11 @@ console.log(record.as('marcxml'));
 
 #### clone()
 
-Return a MARC new record, clone of the record.
+Return a new record, clone of the record.
+
+```javascript
+const clonedRecord = record.clone();
+```
 
 #### delete(match)
 
@@ -445,18 +463,6 @@ Return a MARC-in-JSON object representing the MARC record. Example:
 }
 ```
 
-## marcjs classes
-
-The module returns several classes via stream() and transform()
-[class methods](class-methods):
-
-  * ISO2709 — Duplex stream
-  * Marcxml — Duplex stream
-  * Text — Writable stream
-  * Json — Writable stream
-  * MiJ — Duplex stream
-  * Transform — Transform stream
-
 ## CLI marcjs
 
 A command line script **marcjs** allows MARC record files manipulation from
@@ -482,6 +488,11 @@ cat bib1.mrc bib2.txt | marcjs
 # Output in MARC-in-JSON in bib1.mij file
 marcjs -f mij -o bib1.mij bib1.mrc
 ```
+
+## Versions
+
+* V1 : Until v1.2.3 (December 2020)
+* V2 : From 2.0 (January 2021) — V2 changes the way the library is called.
 
 ## License
 

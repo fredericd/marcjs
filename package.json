@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
   "description": "MARC record Node.js library",
-  "version": "1.2.3",
+  "version": "2.0.0",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
