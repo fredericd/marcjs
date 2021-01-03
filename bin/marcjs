@@ -2,12 +2,12 @@
 
 const nopt = require('nopt');
 const fs = require('fs');
-const MARC = require('../lib/marcjs');
+const { Marc } = require('../lib/Marc');
 
 const parsed = nopt(
   {
-    parser: ['iso2709', 'marcxml', 'mij'],
-    formater: ['text', 'iso2709', 'marcxml', 'json', 'mij'],
+    parser: ['iso2709', 'Marcxml', 'mij'],
+    formater: ['text', 'iso2709', 'Marcxml', 'json', 'mij'],
     output: String,
     help: Boolean,
   },
@@ -22,7 +22,7 @@ const parsed = nopt(
 function usage() {
   // eslint-disable-next-line no-console
   console.log(
-    'Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marc|mij -o result file1 file2',
+    'Usage: Marc -p iso2709|Marcxml|mij -f text|iso2709|Marc|mij -o result file1 file2',
   );
   process.exit(1);
 }
@@ -34,10 +34,10 @@ parsed.formater = parsed.formater || 'text';
 
 const output = parsed.output ? fs.createWriteStream(parsed.output)
   : process.stdout;
-const writer = MARC.stream(output, parsed.formater);
+const writer = Marc.stream(output, parsed.formater);
 let reader;
 const consumeMarcStream = (stream) => {
-  reader = MARC.stream(stream, parsed.parser);
+  reader = Marc.stream(stream, parsed.parser);
   reader.pipe(writer, { end: false });
 };
 const files = parsed.argv.remain;

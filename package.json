@@ -23,7 +23,7 @@
     "url": "https://github.com/fredericd/marcjs/issues"
   },
   "license": "MIT",
-  "main": "lib/marcjs",
+  "main": "lib/Marc",
   "engines": {
     "node": ">= 12.0.0"
   },

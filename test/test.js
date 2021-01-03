@@ -3,9 +3,9 @@
 // eslint-disable-next-line no-unused-vars
 const should = require('should');
 const fs = require('fs');
-const MARC = require('../lib/marcjs');
+const { Marc, Record } = require('../lib/Marc');
 
-const recordSimple = new MARC();
+const recordSimple = new Record();
 recordSimple.leader = '00711nam  2200217   4500';
 recordSimple.append(
   ['001', '1234'],
@@ -13,19 +13,20 @@ recordSimple.append(
 );
 const tmpFile = 'test/data/tmp.output';
 
-describe('MARC', () => {
-  it('MARC class has two properties', () => {
-    MARC.should.have.properties(['formater', 'parser']);
+describe('Marc', () => {
+  it('Marc class has two properties', () => {
+    Marc.should.have.properties(['formater', 'parser']);
   });
   it('has class methods', () => {
-    MARC.should.have.properties(['stream', 'transform', 'parse']);
+    Marc.should.have.properties(['stream', 'transform', 'parse', 'format']);
   });
-  it('stream class method', () => MARC.stream.should.be.a.Function);
-  it('transform class method', () => MARC.transform.should.be.a.Function);
-  it('parse class method', () => MARC.parse.should.be.a.Function);
-  let record = new MARC();
+  it('stream class method', () => Marc.stream.should.be.a.Function);
+  it('transform class method', () => Marc.transform.should.be.a.Function);
+  it('parse class method', () => Marc.parse.should.be.a.Function);
+  it('parse class method', () => Marc.format.should.be.a.Function);
+  let record = new Record();
   it('instantiate a new object', () => {
-    record.should.be.instanceof(MARC);
+    record.should.be.instanceof(Record);
   });
   it('has standard properties', () => {
     record.should.have.properties(['leader', 'fields', 'as', 'append', 'delete', 'get', 'match']);
@@ -79,16 +80,16 @@ describe('MARC', () => {
 describe('Throw some errors', () => {
   it('ask for invalid stream', () => {
     (() => {
-      MARC.stream(null, 'notgood');
+      Marc.stream(null, 'notgood');
     }).should.throw();
   });
   it('ask invalid parser', () => {
     (() => {
-      MARC.parse(null, 'nextcoolformat');
+      Marc.parse(null, 'nextcoolformat');
     }).should.throw();
   });
   it('a invalid record type', () => {
-    const record = new MARC();
+    const record = new Record();
     (() => {
       record.as('nextcoolformat');
     }).should.throw();
@@ -109,7 +110,7 @@ describe('Text', () => {
   describe('Writable', () => {
     const file = 'test/data/tmp.txt';
     const stream = fs.createWriteStream(file);
-    const writable = MARC.stream(stream, 'Text');
+    const writable = Marc.stream(stream, 'Text');
     it('writer stream properties', () => writable.should.have.properties(['_write', 'count']));
     const record = recordSimple.clone();
     it('write two records', (done) => {
@@ -146,9 +147,9 @@ describe('Marcxml', () => {
   <subfield code="g">(Francis Scott),</subfield>
 </datafield>
 </record>`;
-    const record = MARC.parse(raw, 'marcxml');
-    it('parse raw marcxml and get a MARC object', () => {
-      record.should.be.instanceof(MARC);
+    const record = Marc.parse(raw, 'marcxml');
+    it('parse raw marcxml and get a Record object', () => {
+      record.should.be.instanceof(Record);
     });
     it('leader OK', () => {
       record.leader.should.equal('00343nx  a2200109#  450 ');
@@ -174,7 +175,7 @@ describe('Marcxml', () => {
       stream = fs.createReadStream('test/data/bib.xml');
     });
     it('reader stream methods', () => {
-      reader = MARC.stream(stream, 'Marcxml');
+      reader = Marc.stream(stream, 'Marcxml');
       reader.should.have.properties(['_read', 'write']);
     });
     it('first record', (done) => {
@@ -187,7 +188,7 @@ describe('Marcxml', () => {
       reader.on('end', () => done());
     });
     stream = fs.createWriteStream(file);
-    const writable = MARC.stream(stream, 'Marcxml');
+    const writable = Marc.stream(stream, 'Marcxml');
     it('writer stream properties', () => writable.should.have.properties(['_write', 'count']));
     const record = recordSimple.clone();
     it('write two records', (done) => {
@@ -224,7 +225,7 @@ describe('Iso2709', () => {
   describe('Readable Stream', () => {
     const stream = fs.createReadStream('test/data/bib-one.mrc');
     it('first read record', () => {
-      const reader = MARC.stream(stream, 'Iso2709');
+      const reader = Marc.stream(stream, 'Iso2709');
       reader.should.have.property('_read');
       reader.should.have.property('_write');
       reader.on('data', (record) => {
@@ -264,13 +265,13 @@ describe('MiJ', () => {
     it('record.as(\'mij\') generate valid string', () => {
       string.should.eql(expectedString);
     });
-    const rec = MARC.parse(expectedString, 'mij');
+    const rec = Marc.parse(expectedString, 'mij');
     it('parse string', () => rec.should.eql(recordSimple));
   });
 
   describe('Writable Stream', () => {
     const stream = fs.createWriteStream(tmpFile);
-    const writable = MARC.stream(stream, 'MiJ');
+    const writable = Marc.stream(stream, 'MiJ');
     it('has properties', () => writable.should.have.properties(['_write', '_read', 'count']));
     const record = recordSimple.clone();
     it('write two records', (done) => {
@@ -290,7 +291,7 @@ describe('MiJ', () => {
 
   describe('Readable Stream', () => {
     const stream = fs.createReadStream('test/data/bib-out.mij');
-    const readable = MARC.stream(stream, 'MiJ');
+    const readable = Marc.stream(stream, 'MiJ');
     it('has properties', () => readable.should.have.properties(['_write', '_read', 'count']));
     let firstrecord = true;
     it('first record', (done) => {
@@ -306,7 +307,7 @@ describe('MiJ', () => {
 });
 
 describe('Json writable stream', () => {
-  const record = new MARC();
+  const record = new Record();
   record.leader = '00711nam  2200217   4500';
   record.append(
     ['001', '1234'],
@@ -316,7 +317,7 @@ describe('Json writable stream', () => {
   it('json format is a string', () => res.should.be.a.String);
 
   const stream = fs.createWriteStream(tmpFile);
-  const writable = MARC.stream(stream, 'Json');
+  const writable = Marc.stream(stream, 'Json');
   it('has properties', () => writable.should.have.properties(['_write', 'count']));
   it('write two records', (done) => {
     writable.write(record);
@@ -333,13 +334,13 @@ describe('Json writable stream', () => {
 });
 
 describe('Transform object', () => {
-  let record = new MARC();
+  let record = new Record();
   record.leader = '00711nam  2200217   4500';
   record.append(
     ['001', '1234'],
     ['245', '  ', 'a', 'My life :', 'b', 'long story short'],
   );
-  const trans = MARC.transform((rec) => {
+  const trans = Marc.transform((rec) => {
     // eslint-disable-next-line no-param-reassign
     rec.fields.forEach((v) => { if (v[0] === '001') v[1] = '4321'; });
   });
