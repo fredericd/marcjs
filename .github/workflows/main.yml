@@ -26,8 +26,5 @@ jobs:
         npm test
       env:
         CI: true
-    - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
-      with:
-        path: "./coverage/lcov.info"
-        min_coverage: 80
+    - uses: uses: daalbano/lcov-action@v1
 
