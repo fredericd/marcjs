@@ -529,9 +529,10 @@ The module must be installed globaly: `npm i marcjs -g`.
 Usage:
 
 ```bash
-Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marc|mij -o result file1 file2
+Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marcxml|mij -o result file1 file2
 ```
-Default parser is Iso2709 and default formater is Text.
+Default parser is `iso2709` and default formater is `text`. Parser/formater must
+be typed in lowercase.
 
 Example:
 

@@ -40,9 +40,8 @@
     "marcjs": "bin/marcjs"
   },
   "dependencies": {
-    "libxmljs": "^0.19.7",
-    "nopt": "~5.0.0",
-    "xml2js": "^0.4.23"
+    "he": "^1.2.0",
+    "nopt": "^5.0.0"
   },
   "devDependencies": {
     "coveralls": "^3.1.0",

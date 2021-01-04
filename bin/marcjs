@@ -6,8 +6,8 @@ const { Marc } = require('../lib/Marc');
 
 const parsed = nopt(
   {
-    parser: ['iso2709', 'Marcxml', 'mij'],
-    formater: ['text', 'iso2709', 'Marcxml', 'json', 'mij'],
+    parser: ['iso2709', 'marcxml', 'mij'],
+    formater: ['text', 'iso2709', 'marcxml', 'json', 'mij'],
     output: String,
     help: Boolean,
   },
@@ -22,7 +22,7 @@ const parsed = nopt(
 function usage() {
   // eslint-disable-next-line no-console
   console.log(
-    'Usage: Marc -p iso2709|Marcxml|mij -f text|iso2709|Marc|mij -o result file1 file2',
+    'Usage: Marc -p iso2709|marcxml|mij -f text|iso2709|marcxml|mij -o result file1 file2',
   );
   process.exit(1);
 }
@@ -47,9 +47,12 @@ if (files.length > 0) {
       const file = files.shift();
       consumeMarcStream(fs.createReadStream(file));
       reader.on('end', readNextFile);
+    } else {
+      writer.end();
     }
   };
   readNextFile();
 } else {
   consumeMarcStream(process.stdin);
+  writer.end();
 }

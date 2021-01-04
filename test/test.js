@@ -200,13 +200,38 @@ describe('Marcxml', () => {
     });
     it('marcxml file is valid', () => {
       const content = fs.readFileSync(file, 'utf8');
-      const rawfile = '<collection xmlns="http://www.loc.gov/MARC21/slim"><record><leader>00711nam  2200217   4500</leader><controlfield tag="001">1234</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">My life :</subfield><subfield code="b">long story short</subfield></datafield></record><record><leader>00711nam  2200217   4500</leader><controlfield tag="001">9876</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">My life :</subfield><subfield code="b">long story short</subfield></datafield></record></collection>';
+      const rawfile = `<collection xmlns="http://www.loc.gov/MARC21/slim">
+<record>
+  <leader>00711nam  2200217   4500</leader>
+  <controlfield tag="001">1234</controlfield>
+  <datafield tag="245" ind1=" " ind2=" ">
+    <subfield code="a">My life :</subfield>
+    <subfield code="b">long story short</subfield>
+  </datafield>
+</record>
+<record>
+  <leader>00711nam  2200217   4500</leader>
+  <controlfield tag="001">9876</controlfield>
+  <datafield tag="245" ind1=" " ind2=" ">
+    <subfield code="a">My life :</subfield>
+    <subfield code="b">long story short</subfield>
+  </datafield>
+</record>
+</collection>`;
       content.should.equal(rawfile);
     });
   });
   describe('Format String', () => {
     const xml = recordSimple.as('Marcxml');
-    const expected = '<record><leader>00711nam  2200217   4500</leader><controlfield tag="001">1234</controlfield><datafield tag="245" ind1=" " ind2=" "><subfield code="a">My life :</subfield><subfield code="b">long story short</subfield></datafield></record>';
+    const expected = `<record>
+  <leader>00711nam  2200217   4500</leader>
+  <controlfield tag="001">1234</controlfield>
+  <datafield tag="245" ind1=" " ind2=" ">
+    <subfield code="a">My life :</subfield>
+    <subfield code="b">long story short</subfield>
+  </datafield>
+</record>
+`;
     it('as() ok', () => xml.should.equal(expected));
   });
 });
