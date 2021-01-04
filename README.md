@@ -1,7 +1,6 @@
 # marcjs
 
-![Github CI](https://github.com/fredericd/marcjs/workflows/Github%20CI/badge.svg)
-[![Coverage Status](https://img.shields.io/coveralls/github/fredericd/marcjs/v2.svg)](https://coveralls.io/r/fredericd/nyc?branch=v2)
+[![Github CI](https://github.com/fredericd/marcjs/workflows/Github%20CI/badge.svg)](https://github.com/fredericd/marcjs/actions?query=workflow%3A%22Github+CI%22)
 [![NPM version](https://img.shields.io/npm/v/marcjs.svg)](https://www.npmjs.com/package/marcjs)
 
 MARC record Node.js library
