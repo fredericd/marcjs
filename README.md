@@ -1,6 +1,6 @@
 # marcjs
 
-[![Build Status](https://travis-ci.org/fredericd/marcjs.png?branch=master)](https://travis-ci.org/fredericd/marcjs)
+[![Build Status](https://travis-ci.com/fredericd/marcjs.png?branch=master)](https://travis-ci.com/fredericd/marcjs)
 [![Coverage Status](https://img.shields.io/coveralls/github/fredericd/marcjs/v2.svg)](https://coveralls.io/r/fredericd/nyc?branch=v2)
 [![NPM version](https://img.shields.io/npm/v/marcjs.svg)](https://www.npmjs.com/package/marcjs)
 
