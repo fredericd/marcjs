@@ -28,5 +28,5 @@ jobs:
         CI: true
     - name: lcov-action
       uses: danielealbano/lcov-action@v1
-        with:
-          output_lcov_info: coverage/lcov.info
+      with:
+        output_lcov_info: coverage/lcov.info
