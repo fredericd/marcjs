@@ -1,6 +1,7 @@
 # marcjs
 
 [![Build Status](https://travis-ci.org/fredericd/marcjs.png?branch=master)](https://travis-ci.org/fredericd/marcjs)
+[![Coverage Status](https://img.shields.io/coveralls/github/fredericd/marcjs/v2.svg)](https://coveralls.io/r/fredericd/nyc?branch=v2)
 [![NPM version](https://img.shields.io/npm/v/marcjs.svg)](https://www.npmjs.com/package/marcjs)
 
 MARC record Node.js library
@@ -49,7 +50,7 @@ reader.on('end', () => {
 Same but using `pipe()`:
 
 ```javascript
-const { MARC } = require('marcjs');
+const { Marc } = require('marcjs');
 const fs = require('fs');
 
 let reader = Marc.stream(fs.createReadStream('BNF-Livres-01.mrc'), 'Iso2709');
@@ -61,7 +62,7 @@ let trans = Marc.transform((record) => {
 const transStream = reader.pipe(trans);
 // Pipe the stream of transformed biblio record to 4 different writers
 ['marcxml', 'iso2709', 'json', 'text'].forEach((type) => {
-  const writer = MARC.stream(fs.createWriteStream(`bib-edited.${type}`), type);
+  const writer = Marc.stream(fs.createWriteStream(`bib-edited.${type}`), type);
   transStream.pipe(writer);
 });
 var tick = setInterval(() => { console.log(reader.count); }, 100);
@@ -71,9 +72,9 @@ reader.on('end', () => {
 });
 ```
 
-## Marc object
+## `Marc` object
 
-The Marc object has [two properties](#marc-attributes):
+The Marc object has [two properties](#marc-properties):
 
   * parser
   * formater
@@ -84,7 +85,7 @@ Marc has [three functions](#marc-functions):
   * parse()
   * transform()
 
-### Marc attributes
+### `Marc` properties
 
 The class has two properties defining the serialization formats that MARC
 module is able to read and write.
@@ -99,7 +100,7 @@ const knownParser = Object.keys(Marc.parser);
 console.log(knownParser); // Display Marc format that marcjs can parse
 ```
 
-### Marc functions
+### `Marc` functions
 
 #### stream(stream, type)
 
@@ -130,7 +131,7 @@ const writer = Marc.stream(fs.stdout, 'Text');
 reader.pipe(writer);
 ```
 
-Oneliner version:
+One-liner version:
 
 ```javascript
 const { Marc } = require('marcjs');
@@ -146,17 +147,16 @@ const { Iso2709, Text } = require('marcjs');
 const reader = new Iso2709(fs.createReadStream('bib.mrc'));
 const writer = new Text(fs.stdout, 'Text');
 reader.pipe(writer);
-
 ```
 
-### parse(raw, type) {
+#### parse(raw, type) {
 
 Parse a **raw** record serialized in **type** format, and returns a MARC record.
 
 For example:
 
 ```javascript
-const MARC = require('marcjs');
+const { Marc } = require('marcjs');
 const marcxml = `<record>
 <leader>01288nam  2200337   450 </leader>
 <controlfield tag="001">FRBNF345958660000005</controlfield>
@@ -165,7 +165,20 @@ const marcxml = `<record>
  <subfield code="b">Texte imprimé</subfield>
 </datafield>
 </record>`;
-const record = MARC.parse(marcxml, 'marcxml');
+const record = Marc.parse(marcxml, 'marcxml');
+```
+
+#### format(record, type)
+
+Format `record` with `type` serialization format. Note that:
+
+For example:
+
+```javascript
+const { Marc } = require('marcjs);
+// Get a MARC record
+console.log(Marc.format(record, 'Text'));
+console.log(Marc.format(record, 'Marcxml'));
 ```
 
 #### transform(function)
@@ -176,7 +189,7 @@ chaining reading, multiple transformation, writing, via piping streams.
 Example:
 
 ```javascript
-const deleteSomeFields = Marc.transform(record => {
+const deleteSomeFields = Marc.transform((record) => {
   record.delete('8..');
   record.delete('6..');
 });
@@ -184,9 +197,9 @@ const deleteSomeFields = Marc.transform(record => {
 record = deleteSomeFields(record);
 ```
 
-## Class Record
+## `Record` Class
 
-The Record object has [two properties](record-properties) :
+The Record object has [two properties](record-attributes) :
 
 * leader
 * fields
@@ -201,10 +214,10 @@ And Record has [several methods](record-methods):
 * clone()
 * mij()
 
-### Record properties
+### `Record` attributes
 
 The library manipulates MARC biblio records as native Javascript objects which
-have two properties: `leader` and `fields`. Each record is a `Record` object.
+have two attributes: `leader` and `fields`. Each record is a `Record` object.
 
 Example:
 
@@ -322,7 +335,7 @@ Example:
 }
 ```
 
-### Record methods
+### `Record` methods
 
 #### append()
 

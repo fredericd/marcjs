@@ -223,14 +223,24 @@ describe('Iso2709', () => {
     it('valid format with leader creation', () => val2.substr(0, 48).should.equal(raw2));
   });
   describe('Readable Stream', () => {
-    const stream = fs.createReadStream('test/data/bib-one.mrc');
-    it('first read record', () => {
-      const reader = Marc.stream(stream, 'Iso2709');
-      reader.should.have.property('_read');
-      reader.should.have.property('_write');
+    let stream;
+    let reader;
+    let firstrecord = true;
+    before(() => {
+      stream = fs.createReadStream('test/data/bib-one.mrc');
+    });
+    it('reader stream methods', () => {
+      reader = Marc.stream(stream, 'Iso2709');
+      reader.should.have.properties(['_read', 'write']);
+    });
+    it('first record', (done) => {
       reader.on('data', (record) => {
-        record.leader.should.equal('00711nam  2200217   4500');
+        if (firstrecord) {
+          record.leader.should.equal('00733nam  2200229   4500');
+          firstrecord = false;
+        }
       });
+      reader.on('end', () => done());
     });
   });
 });
