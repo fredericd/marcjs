@@ -26,5 +26,4 @@ jobs:
         npm test
       env:
         CI: true
-    - uses: uses: daalbano/lcov-action@v1
-
+    - uses: daalbano/lcov-action@v1
