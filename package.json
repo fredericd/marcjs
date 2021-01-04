@@ -32,9 +32,7 @@
     "node": ">= 12.0.0"
   },
   "scripts": {
-    "test": "mocha",
-    "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "report": "nyc --reporter=lcov --reporter=html --reporter=text mocha"
+    "test": "nyc --reporter=lcov --reporter=html --reporter=text mocha"
   },
   "bin": {
     "marcjs": "bin/marcjs"

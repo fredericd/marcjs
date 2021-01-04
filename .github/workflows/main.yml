@@ -20,9 +20,14 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - name: npm install and test
+    - name: npm install and test and coverage
       run: |
         npm install
         npm test
       env:
         CI: true
+    - uses: VeryGoodOpenSource/very_good_coverage@v1.1.1
+      with:
+        path: "./coverage/lcov.info"
+        min_coverage: 80
+

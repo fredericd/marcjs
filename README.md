@@ -2,6 +2,7 @@
 
 [![Github CI](https://github.com/fredericd/marcjs/workflows/Github%20CI/badge.svg)](https://github.com/fredericd/marcjs/actions?query=workflow%3A%22Github+CI%22)
 [![NPM version](https://img.shields.io/npm/v/marcjs.svg)](https://www.npmjs.com/package/marcjs)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 MARC record Node.js library
 
