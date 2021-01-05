@@ -20,8 +20,8 @@ console.log(Marc.format(record, 'Marcxml'));
 
 ## Usage
 
-This script reads an ISO2709 file, adds a field to each record, and writes each record into 
-an ISO2709 file, a MARCXML file, a JSON file, and a text file.
+This script reads an ISO2709 file, adds a field to each record, and writes each
+record into an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 
 ```javascript
 const { Marc } = require('marcjs');
@@ -104,9 +104,8 @@ console.log(knownParser); // Display Marc format that marcjs can parse
 
 #### stream(stream, type)
 
-Returns a readable/writable/duplex stream for specific serialisation format.
-The stream has a property `count` containing the number of record
-written/readen.
+Returns a readable/writable/duplex stream for specific serialisation format. The
+stream has a property `count` containing the number of record written/readen.
 
 * **text** -- Writable.
 * **iso2709** -- Readable/Writable.
@@ -122,7 +121,7 @@ const marcxmlReader = Marc.stream(fs.createReadStream(file), 'Marcxml');
 const textWriter = Marc.stream(fs.stdout, 'Text'); 
 ```
 
-Read a ISO2709 file and display its text version to the screen:
+Read an ISO2709 file and display its text version to the screen:
 
 ```javascript
 const { Marc } = require('marcjs');
@@ -149,7 +148,7 @@ const writer = new Text(fs.stdout, 'Text');
 reader.pipe(writer);
 ```
 
-#### parse(raw, type) {
+#### parse(raw, type)
 
 Parse a **raw** record serialized in **type** format, and returns a MARC record.
 
@@ -183,8 +182,8 @@ console.log(Marc.format(record, 'Marcxml'));
 
 #### transform(function)
 
-Returns a Transform stream transforming a MARC record. It allows
-chaining reading, multiple transformation, writing, via piping streams.
+Returns a Transform stream transforming a MARC record. It allows chaining
+reading, multiple transformation, writing, via piping streams.
 
 Example:
 
@@ -199,7 +198,7 @@ record = deleteSomeFields(record);
 
 ## `Record` Class
 
-The Record object has [two properties](record-attributes) :
+The Record object has [two attributes](record-attributes) :
 
 * leader
 * fields
@@ -352,13 +351,15 @@ record
 
 #### as(format)
 
-Return a string representation of the record, in a specific format given as method parameter:
+Return a string representation of the record, in a specific format given as
+method parameter:
 
-  * **text** -- A human readable version of the MARC record.
-  * **iso2709** -- Legacy ISO2709 format.
-  * **marcxml** -- Standard MARCXML.
-  * **json** -- JSON stringified version of the native record object.
-  * **mij** -- MARC-in-JSON. Alternative serialization format, as described here: https://github.com/marc4j/marc4j/wiki/MARC-in-JSON-Description 
+* **text** -- A human readable version of the MARC record.
+* **iso2709** -- Legacy ISO2709 format.
+* **marcxml** -- Standard MARCXML.
+* **json** -- JSON stringified version of the native record object.
+* **mij** -- MARC-in-JSON. Alternative serialization format, as described here:
+  https://github.com/marc4j/marc4j/wiki/MARC-in-JSON-Description 
 
 Example:
 
@@ -509,15 +510,11 @@ Marc object return other classes than Marc and  Record classes. They can be
 invoqued directly.
 
 * **Iso2709** — Duplex stream reading/writing ISO2709 serialized records.
-
 * **Marcxml** — Duplex stream reading/writing Marcxml serialized records.
-
 * **MiJ** — Duplex stream reading/writing MARC-in-JSON serialized records.
-
 * **Text** — Writable stream writing Text serialized records.
-
-* **Json** — Writable stream writing Json serialized records. It's the
-marcjs native serialization format.
+* **Json** — Writable stream writing Json serialized records. It's the marcjs
+  native serialization format.
 
 ## CLI marcjs
 
@@ -553,5 +550,6 @@ marcjs -f mij -o bib1.mij bib1.mrc
 
 ## License
 
-Copyright (c) 2020 Frédéric Demians
+Copyright (c) 2021 Frédéric Demians
+
 Licensed under the MIT license.
