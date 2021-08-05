@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
-  "description": "MARC record node.js library",
-  "version": "1.0.7",
+  "description": "MARC record Node.js library",
+  "version": "2.0.1",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
@@ -15,6 +15,11 @@
     "machine-readable cataloging",
     "marc-in-json"
   ],
+  "main": "lib/Marc.js",
+  "files": [
+    "bin/*",
+    "lib/*.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/fredericd/marcjs.git"
@@ -22,31 +27,27 @@
   "bugs": {
     "url": "https://github.com/fredericd/marcjs/issues"
   },
-  "licence": "See license in LICENSE-MIT",
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/fredericd/marcjs/blob/master/LICENSE-MIT"
-    }
-  ],
-  "main": "lib/marcjs",
+  "license": "MIT",
   "engines": {
-    "node": ">= 6.0.0"
+    "node": ">= 12.0.0"
   },
   "scripts": {
-    "test": "nyc --reporter=html --reporter=text mocha"
+    "test": "nyc --reporter=lcov --reporter=html --reporter=text mocha"
   },
   "bin": {
     "marcjs": "bin/marcjs"
   },
   "dependencies": {
-    "libxmljs": "^0.18.8",
-    "nopt": "~2.1.0",
-    "xml2js": "^0.4.19"
+    "he": "^1.2.0",
+    "nopt": "^5.0.0"
   },
   "devDependencies": {
+    "coveralls": "^3.1.0",
+    "eslint": "^7.16.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
     "mocha": "^5.2.0",
-    "nyc": "^11.8.0",
-    "should": "^2.0.2"
+    "nyc": "^11.9.0",
+    "should": "^2.1.1"
   }
 }

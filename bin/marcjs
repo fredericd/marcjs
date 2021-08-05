@@ -1,51 +1,58 @@
 #!/usr/bin/env node
 
-let nopt   = require('nopt'),
-    fs     = require('fs'),
-    async  = require('async'),
-    MARC   = require('../lib/marcjs');
+const nopt = require('nopt');
+const fs = require('fs');
+const { Marc } = require('../lib/Marc');
 
-let parsed = nopt(
+const parsed = nopt(
   {
-    "parser": ["iso2709","marcxml","mij"],
-    "formater": ["text","iso2709","marcxml","json","mij"],
-    "output": String,
-    "help": Boolean
+    parser: ['iso2709', 'marcxml', 'mij'],
+    formater: ['text', 'iso2709', 'marcxml', 'json', 'mij'],
+    output: String,
+    help: Boolean,
   },
   {
-    "p": "--parser",
-    "f": "--formater",
-    "o": "--output"
+    p: '--parser',
+    f: '--formater',
+    o: '--output',
   },
-  process.argv, 2
+  process.argv, 2,
 );
 
 function usage() {
+  // eslint-disable-next-line no-console
   console.log(
-    "Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marc|mij -o result file1 file2"
+    'Usage: Marc -p iso2709|marcxml|mij -f text|iso2709|marcxml|mij -o result file1 file2',
   );
   process.exit(1);
 }
+
 if (parsed.help) { usage(); }
 
 parsed.parser = parsed.parser || 'iso2709';
 parsed.formater = parsed.formater || 'text';
 
-let output = parsed.output ? fs.createWriteStream(parsed.output)
-                           : process.stdout;
-let writer = MARC.stream(output, parsed.formater);
-let tasks = [];
-let addTask = function(input) {
-  tasks.push(function(callback) {
-    let reader = MARC.stream(input, parsed.parser);
-    reader.pipe(writer);
-  });
+const output = parsed.output ? fs.createWriteStream(parsed.output)
+  : process.stdout;
+const writer = Marc.stream(output, parsed.formater);
+let reader;
+const consumeMarcStream = (stream) => {
+  reader = Marc.stream(stream, parsed.parser);
+  reader.pipe(writer, { end: false });
 };
-if (parsed.argv.remain.length > 0) {
-  parsed.argv.remain.forEach(function(file) {
-    addTask(fs.createReadStream(file));
-  });
+const files = parsed.argv.remain;
+if (files.length > 0) {
+  const readNextFile = () => {
+    if (files.length) {
+      const file = files.shift();
+      consumeMarcStream(fs.createReadStream(file));
+      reader.on('end', readNextFile);
+    } else {
+      writer.end();
+    }
+  };
+  readNextFile();
 } else {
-  addTask(process.stdin);
+  consumeMarcStream(process.stdin);
+  writer.end();
 }
-async.series(tasks);
