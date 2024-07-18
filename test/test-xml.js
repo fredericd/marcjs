@@ -1,7 +1,3 @@
-/* eslint-disable no-undef */
-// eslint-disable-next-line no-unused-vars
-//const should = require('should');
-//const fs = require('fs');
 const  Marcxml = require('../lib/Marcxml');
 
 const xml_selfclosing = `<?xml version="1.0"?>
