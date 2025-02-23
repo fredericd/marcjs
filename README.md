@@ -27,46 +27,23 @@ record into an ISO2709 file, a MARCXML file, a JSON file, and a text file.
 const { Marc } = require('marcjs');
 const fs = require('fs');
 
-let reader = Marc.stream(fs.createReadStream('bib.mrc'), 'Iso2709');
-let writers = ['marcxml', 'iso2709', 'json', 'text']
-  .map(type => Marc.stream(fs.createWriteStream('bib-edited.'+type),type));
-let trans = Marc.transform(record => {
-  record.fields = record.fields.filter((field) => field[0][0] !== '6' && field[0][0] !== '8' );
-  record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2021-01-01' ] );
-});
-reader.on('data', (record) => {
-  trans.write(record);
-  record = trans.read(record);
-  writers.forEach((writer) => writer.write(record) );
-});
-var tick = setInterval(() => { console.log(reader.count); }, 100);
-reader.on('end', () => {
-    writers.forEach(writer => writer.end());
-    console.log("Number of processed biblio records: " + reader.count);
-    clearInterval(tick);
-});
-```
-
-Same but using `pipe()`:
-
-```javascript
-const { Marc } = require('marcjs');
-const fs = require('fs');
-
-let reader = Marc.stream(fs.createReadStream('BNF-Livres-01.mrc'), 'Iso2709');
+const input = fs.createReadStream('BNF-Livres-01.mrc');
+const parser = Marc.createStream('Iso2709', 'Parser');
 let trans = Marc.transform((record) => {
   // Delete 9.. tags and add a 801 field
   record.fields = record.fields.filter((field) => field[0][0] !== '9');
   record.append( [ '801', '  ', 'a', 'Tamil s.a.r.l.', 'b', '2021-01-01' ] );
 });
-const transStream = reader.pipe(trans);
+const transStream = input.pipe(parser).pipe(trans);
 // Pipe the stream of transformed biblio record to 4 different writers
-['marcxml', 'iso2709', 'json', 'text'].forEach((type) => {
-  const writer = Marc.stream(fs.createWriteStream(`bib-edited.${type}`), type);
-  transStream.pipe(writer);
+['marcxml', 'iso2709', 'json', 'mij', 'text'].forEach((type) => {
+  const output = fs.createWriteStream(`bib-edited.${type}`);
+  const formater = Marc.createStream(type, 'Formater');
+  formater.pipe(output);
+  transStream.pipe(formater)
 });
-var tick = setInterval(() => { console.log(reader.count); }, 100);
-reader.on('end', () => {
+const tick = setInterval(() => { console.log(reader.count); }, 100);
+input.on('end', () => {
   console.log("Number of processed biblio records: " + reader.count);
   clearInterval(tick);
 });
@@ -81,7 +58,7 @@ The Marc object has [two properties](#marc-properties):
 
 Marc has [three functions](#marc-functions):
 
-  * stream()
+  * createStream()
   * parse()
   * transform()
 
@@ -102,50 +79,55 @@ console.log(knownParser); // Display Marc format that marcjs can parse
 
 ### `Marc` functions
 
-#### stream(stream, type)
+#### createStream(type, what)
 
-Returns a readable/writable/duplex stream for specific serialisation format. The
-stream has a property `count` containing the number of record written/readen.
+Returns a duplex stream for specific serialization formats. The stream has a
+property `count` containing the number of records handled. The _type_ is the
+type of serialization format: ISO2709, Marcxml, Json, MiJ. The _what_ is the
+type of action the stream is doing: _Parser_ ou _Formater_.
 
-* **text** -- Writable.
-* **iso2709** -- Readable/Writable.
-* **marcxml** -- Readable/Writable.
-* **json** -- Writable.
-* **mij** -- Readable/Writable.
+- A parser receives data from a nodejs Stream and produces objects of type
+  Record.
+- A formater receives Record objects and send them to a nodejs Stream.
 
 Usage:
 
 ```javascript
-const iso2709Reader = Marc.stream(process.stdin, 'Iso2709');
-const marcxmlReader = Marc.stream(fs.createReadStream(file), 'Marcxml');
-const textWriter = Marc.stream(fs.stdout, 'Text'); 
+const iso2709Parser = Marc.createStream('Iso2709', 'Parser');
+const marcxmlParser = Marc.createStream('Marcxml', 'Parser');
+const textFormater = Marc.createStream('Text', 'Formater'); 
 ```
 
 Read an ISO2709 file and display its text version to the screen:
 
 ```javascript
 const { Marc } = require('marcjs');
-const reader = Marc.stream(fs.createReadStream('bib.mrc', 'Iso2709'));
-const writer = Marc.stream(fs.stdout, 'Text');
-reader.pipe(writer);
+const fs = require('fs');
+const input = fs.createReadStream('bib.mrc');
+const parser = Marc.createStream('Iso2709', 'Parser');
+const formater = Marc.createStream('Text', 'Formater');
+input.pipe(parser).pipe(formater).pipe(process.stdout);
 ```
 
 One-liner version:
 
 ```javascript
 const { Marc } = require('marcjs');
-Marc
-  .stream(fs.createReadStream('bib.mrc', 'Iso2709'))
-  .pipe(Marc.stream(fs.stdout, 'Text'));
+const fs = require('fs');
+fs.createReadStream('bib.mrc')
+  .pipe(Marc.createStream('Iso2709', 'Parser'))
+  .pipe(Marc.createStream('Text', 'Formater'))
+  .pipe(process.stdout);
 ```
 
-Version with marcjs Readable/Writable/Duplex Node.js classes:
+Version with marcjs Duplex Node.js classes:
 
 ```javascript
-const { Iso2709, Text } = require('marcjs');
-const reader = new Iso2709(fs.createReadStream('bib.mrc'));
-const writer = new Text(fs.stdout, 'Text');
-reader.pipe(writer);
+const { Iso2709Parser, TextFormater } = require('marcjs');
+fs.createReadStream('bib.mrc')
+    .pipe(new Iso2709Parser())
+    .pipe(new TextFormater)
+    .pipe(process.stdout);
 ```
 
 #### parse(raw, type)
@@ -547,9 +529,12 @@ marcjs -f mij -o bib1.mij bib1.mrc
 
 * V1 : Until v1.2.3 (December 2020)
 * V2 : From 2.0 (January 2021) — V2 changes the way the library is called.
+- V3 : From 3.0.0 (March 2025) — Major interface change. Necessary to use
+  properly nodejs Stream, and back pressure in order to handle very large
+  stream of data.
 
 ## License
 
-Copyright (c) 2021 Frédéric Demians
+Copyright (c) 2025 Frédéric Demians
 
 Licensed under the MIT license.

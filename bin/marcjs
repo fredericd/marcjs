@@ -34,11 +34,12 @@ parsed.formater = parsed.formater || 'text';
 
 const output = parsed.output ? fs.createWriteStream(parsed.output)
   : process.stdout;
-const writer = Marc.stream(output, parsed.formater);
+const writer = Marc.stream(parsed.formater);
 let reader;
 const consumeMarcStream = (stream) => {
-  reader = Marc.stream(stream, parsed.parser);
-  reader.pipe(writer, { end: false });
+  console.log(`parser: ${parsed.parser}`);
+  reader = Marc.stream(parsed.parser);
+  stream.pipe(reader).pipe(writer, { end: false }).pipe(output);
 };
 const files = parsed.argv.remain;
 if (files.length > 0) {

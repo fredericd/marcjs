@@ -1,7 +1,7 @@
 {
   "name": "marcjs",
   "description": "MARC record Node.js library",
-  "version": "2.0.1",
+  "version": "3.0.1",
   "homepage": "https://github.com/fredericd/marcjs",
   "author": {
     "name": "Frédéric Demians",
@@ -48,6 +48,6 @@
     "eslint-plugin-import": "^2.22.1",
     "mocha": "^5.2.0",
     "nyc": "^11.9.0",
-    "should": "^2.1.1"
+    "chai": "4.2.0"
   }
 }
