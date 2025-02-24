@@ -3,6 +3,7 @@
 const nopt = require('nopt');
 const fs = require('fs');
 const { Marc } = require('../lib/Marc');
+const { PassThrough } = require('stream');
 
 const parsed = nopt(
   {
@@ -35,23 +36,26 @@ parsed.formater = parsed.formater || 'text';
 const output = parsed.output ? fs.createWriteStream(parsed.output)
   : process.stdout;
 const consumeFile = (input, callback) => {
-  const formaterStream = input
+  const pass = new PassThrough();
+  input
     .pipe(Marc.createStream(parsed.parser, 'Parser'))
-    .pipe(Marc.createStream(parsed.formater, 'Formater'));
-  formaterStream.on('finish', () => callback());
-  formaterStream.pipe(output, { end: false });
+    .pipe(Marc.createStream(parsed.formater, 'Formater'))
+    .pipe(pass)
+    .on('finish', callback);
+  pass.pipe(output, { end: false });
 };
 const files = parsed.argv.remain;
 if (files.length === 0) { // Read console
   consumeFile(process.stdin, () => output.end());
 } else {
-  const next = () => {
+  let next;
+  next = () => {
     const file = files.shift();
     const input = fs.createReadStream(file);
     if (files.length === 0) {
       consumeFile(input, () => output.end());
     } else {
-      consumeFile(input, () => next());
+      consumeFile(input, next);
     }
   };
   next();
