@@ -34,26 +34,25 @@ parsed.formater = parsed.formater || 'text';
 
 const output = parsed.output ? fs.createWriteStream(parsed.output)
   : process.stdout;
-const writer = Marc.stream(parsed.formater);
-let reader;
-const consumeMarcStream = (stream) => {
-  console.log(`parser: ${parsed.parser}`);
-  reader = Marc.stream(parsed.parser);
-  stream.pipe(reader).pipe(writer, { end: false }).pipe(output);
+const consumeFile = (input, callback) => {
+  const formaterStream = input
+    .pipe(Marc.createStream(parsed.parser, 'Parser'))
+    .pipe(Marc.createStream(parsed.formater, 'Formater'));
+  formaterStream.on('finish', () => callback());
+  formaterStream.pipe(output, { end: false });
 };
 const files = parsed.argv.remain;
-if (files.length > 0) {
-  const readNextFile = () => {
-    if (files.length) {
-      const file = files.shift();
-      consumeMarcStream(fs.createReadStream(file));
-      reader.on('end', readNextFile);
+if (files.length === 0) { // Read console
+  consumeFile(process.stdin, () => output.end());
+} else {
+  const next = () => {
+    const file = files.shift();
+    const input = fs.createReadStream(file);
+    if (files.length === 0) {
+      consumeFile(input, () => output.end());
     } else {
-      writer.end();
+      consumeFile(input, () => next());
     }
   };
-  readNextFile();
-} else {
-  consumeMarcStream(process.stdin);
-  writer.end();
+  next();
 }
