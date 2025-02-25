@@ -2,8 +2,8 @@
 
 const nopt = require('nopt');
 const fs = require('fs');
-const { Marc } = require('../lib/Marc');
 const { PassThrough } = require('stream');
+const { Marc } = require('../lib/Marc');
 
 const parsed = nopt(
   {
@@ -48,8 +48,7 @@ const files = parsed.argv.remain;
 if (files.length === 0) { // Read console
   consumeFile(process.stdin, () => output.end());
 } else {
-  let next;
-  next = () => {
+  const next = () => {
     const file = files.shift();
     const input = fs.createReadStream(file);
     if (files.length === 0) {

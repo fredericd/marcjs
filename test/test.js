@@ -3,7 +3,10 @@
 // eslint-disable-next-line no-unused-vars
 const { should } = require('chai');
 const fs = require('fs');
-const { Marc, Record } = require('../lib/Marc');
+const {
+  Marc,
+  Record,
+} = require('../lib/Marc');
 
 should();
 
@@ -52,6 +55,12 @@ describe('Marc', () => {
     record.append();
     record.fields.length.should.equal(1);
   });
+  it('append a field before end of tags list', () => {
+    record.append(['100', '  ', 'a', 'coded field']);
+    record.fields.length.should.equal(2);
+    record.fields[0][0].should.equal('100');
+    record.fields[1][0].should.equal('200');
+  });
   it('get field', () => {
     const f = record.get('200');
     f.length.should.equal(1);
@@ -63,12 +72,15 @@ describe('Marc', () => {
     f[0].subf[0][1].should.equal('My title');
   });
   it('append before the uniq field', () => {
-    record.append(['100', '  ', 'a', 'value']);
-    record.fields.length.should.equal(2);
-    record.fields[0][0].should.equal('100');
+    record.append(['090', '  ', 'a', 'value']);
+    record.fields.length.should.equal(3);
+    record.fields[0][0].should.equal('090');
   });
   it('match field', () => {
-    record.match('200', (field) => field.subf.forEach((v) => v[1].toLowerCase()));
+    const cb = function(field) {
+      field.subf[0][1] = field.subf[0][1].toUpperCase();
+    };
+    record.match('090', cb);
   });
   it('delete field', () => {
     record.delete('200');
@@ -122,11 +134,12 @@ describe('Text', () => {
     });
     const record = recordSimple.clone();
     formater.pipe(output);
-    it('write two records', () => {
+    it('write two records', (done) => {
       formater.write(record);
       record.fields[0][1] = '9876';
       formater.write(record);
       formater.end();
+      done();
     });
     it('text file is valid', () => {
       const content = fs.readFileSync(file, 'utf8');
