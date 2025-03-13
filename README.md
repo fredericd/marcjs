@@ -529,7 +529,7 @@ marcjs -f mij -o bib1.mij bib1.mrc
 
 * V1 : Until v1.2.3 (December 2020)
 * V2 : From 2.0 (January 2021) — V2 changes the way the library is called.
-- V3 : From 3.0.0 (March 2025) — Major interface change. Necessary to use
+- V3 : From 3.0.2 (March 2025) — Major interface change. Necessary to use
   properly nodejs Stream, and back pressure in order to handle very large
   stream of data.
 
