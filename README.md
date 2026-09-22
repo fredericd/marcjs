@@ -49,6 +49,38 @@ input.on('end', () => {
 });
 ```
 
+In some situations, the 'pipe' node stream mechanism isn't suitable. For
+example, if you need to skip some records from an input stream, or if you need
+to split records into various output streams based on some criteria. In this
+case, you can use standard stream events to capture records asynchronously as
+soon as they are available. For example, this small script reads a file and
+keeps 1/100 of its records:
+
+```javascript
+const fs = require('fs');
+const { Marc } = require('marcjs');
+
+const input = fs.createReadStream('dump.mrc');
+const parser = Marc.createStream('Iso2709', 'Parser');
+input.pipe(parser);
+const output = fs.createWriteStream('dump-cleaned.mrc');
+const formater = Marc.createStream('Iso2709', 'Formater');
+input.pipe(parser);
+formater.pipe(output);
+let count = 0;
+parser.on('data', (record) => {
+    count++;
+    if (count % 100 === 0) {
+        console.log(count);
+        formater.write(record);
+    }
+});
+parser.on('end', () => {
+    console.log('THE END');
+    formater.end();
+});
+```
+
 ## `Marc` object
 
 The Marc object has [two properties](#marc-properties):
@@ -503,12 +535,13 @@ invoqued directly.
 A command line script **marcjs** allows MARC record files manipulation from
 command line.
 
-The module must be installed globaly: `npm i marcjs -g`.
+The module must be installed globaly: `npm i marcjs -g`. Or you can use it
+locally with `npx marcjs...`.
 
 Usage:
 
 ```bash
-Usage: marc -p iso2709|marcxml|mij -f text|iso2709|marcxml|mij -o result file1 file2
+Usage: marcjs -p iso2709|marcxml|mij -f text|iso2709|marcxml|mij -o result file1 file2
 ```
 Default parser is `iso2709` and default formater is `text`. Parser/formater must
 be typed in lowercase.
@@ -535,6 +568,6 @@ marcjs -f mij -o bib1.mij bib1.mrc
 
 ## License
 
-Copyright (c) 2025 Frédéric Demians
+Copyright (c) 2026 Frédéric Demians
 
 Licensed under the MIT license.
